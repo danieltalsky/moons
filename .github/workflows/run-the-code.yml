@@ -13,4 +13,6 @@ jobs:
 
       - name: Run the master bash script
         run: |
-          bash master.bash
+          set +x
+          chmod +x master.bash
+          ./master.bash
