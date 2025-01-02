@@ -1,0 +1,16 @@
+name: Pull down code and run the master bash script
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  run-shell-script:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v2
+
+      - name: Run the master bash script
+        run: |
+          bash master.bash
