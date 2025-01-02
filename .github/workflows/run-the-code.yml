@@ -1,8 +1,6 @@
 name: Pull down code and run the master bash script
 
-on:
-  push:
-  pull_request:
+on: [push, pull_request]
 
 jobs:
   run-shell-script:
@@ -14,5 +12,5 @@ jobs:
       - name: Run the master bash script
         run: |
           set +x
-          chmod +x master.bash
-          ./master.bash
+          chmod +x run.sh
+          ./run.sh BDir2
