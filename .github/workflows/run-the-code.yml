@@ -3,11 +3,15 @@ name: Pull down code and run the master bash script
 on: [push, pull_request]
 
 jobs:
-  run-shell-script:
+  run-fortran-moon-calculations:
+    name: Run fortran moon calculations
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository code
         uses: actions/checkout@v2
+
+      - name: Install numPy
+        run: pip install numpy
 
       - name: Run the master bash script
         run: |
