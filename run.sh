@@ -68,6 +68,3 @@ fi
 # Write stop time for this directory:
 t2=$(date +%s)
 echo $1"	"$machine"	"$niter"	"$nobj"	"$user"	"$(echo "$t2 - $t1"|bc ) >> runtime.txt
-### Send alert to my email
-./email.sh $1 $niter 'Moons'
-
