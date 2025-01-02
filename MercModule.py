@@ -9,6 +9,7 @@ def FileLength(fname):
 ############################################################################
 ### Write big.in or small.in file
 def WriteObjInFile(here,whichdir,names,filename,Header,FirstLines,xv,s):
+	import MercModule
 
 	infile=open(here+'/'+whichdir+'/In/'+filename+'.in','w')
 	# Header
@@ -527,7 +528,8 @@ def Good2Small(whichdir,whichtime,n):
 	import MercModule
 	import numpy as np
 	import os
-	from random import sample
+	from random import random, sample
+	from math import pi, sin, cos
 
 	here=os.getcwd()	
 	print('Good2Small '+whichdir+'/good.in  '+whichtime)
@@ -550,7 +552,7 @@ def Good2Small(whichdir,whichtime,n):
 		      'There are only '+str(ngood)+' good objects to use.')
 		n=ngood
 ### New objects will be a random subset of the good list
-	GoodInd=sample(range(ngood),n)
+	GoodInd=sample(xrange(ngood),n)
 ### Create and fill vectors with the data from good.in
 	header, pos, vel, s = [],[],[],[]
 	for j in range(ngood):
