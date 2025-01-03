@@ -79,6 +79,8 @@ class MercModule:
         print(f"-----------------------here: {here} and whichdir: {whichdir}")
         print(f"-----------------------ls: ")
         print(os.listdir())
+        print("--------ls of /Out/")
+        print(os.listdir("/home/runner/work/moons/moons/BDir2/Out"))
 
         InfoFile = open(f"{here}/{whichdir}/Out/info.out", 'r')
         InfoLen = MercModule.FileLength(f"{here}/{whichdir}/Out/info.out")
