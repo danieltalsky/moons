@@ -510,7 +510,7 @@ class MercModule:
                   'There are only '+str(ngood)+' good objects to use.')
             n=ngood
         ### New objects will be a random subset of the good list
-        GoodInd=sample(range(ngood),n)
+        GoodInd=sample(list(range(ngood)),n)
         ### Create and fill vectors with the data from good.in
         header, pos, vel, s = [],[],[],[]
         for j in list(range(ngood)):
