@@ -16,7 +16,7 @@ user='no'	# use user-defined forces?
 
 nobj=6000	# number of ejected fragments
 pl='J'		# planet to aim for
-mode='good'	# 'gen' to generate rock list, 'good' to use it
+mode='gen'	# 'gen' to generate rock list, 'good' to use it
 
 ### clean?
 #\rm $1/infosum.out
