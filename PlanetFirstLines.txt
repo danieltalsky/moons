@@ -1,0 +1,17 @@
+Mercury   5.427  1.660E-07
+Venus     5.204  2.4476E-06
+Earth     5.515  3.0032E-06
+Mars      3.9335  3.2268E-07
+Jupiter   1.326  9.54266E-04
+Io        3.530  4.491E-08
+Europa    2.99   2.412E-08
+Ganymede  1.94   7.451E-08
+Callisto  1.851  5.409E-08
+Saturn    0.687  2.85717E-04
+Enceladus 1.606  5.4321E-11
+Rhea      1.233  1.161E-09
+Titan     1.880  6.76452E-08
+Iapetus   1.088  9.0790E-10
+Uranus    1.318  4.36430E-05
+Neptune   1.638  5.1486E-05
+Plantsml    2.0  1.0012066e-17
