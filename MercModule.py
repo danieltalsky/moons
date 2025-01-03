@@ -169,12 +169,19 @@ class MercModule:
         timestep = int(whichtime)
 
         # Find the correct timestep for the planets
-        for i in list(range(8)):
-            filename = here + '/' + whichdir + '/In/InitElemFiles/' + big[i] + '.aei'
-            File = open(filename, 'r')
-            for j in list(range(timestep)):
-                thisline = File.readline().split()
-            bigxv[i] = thisline[6:]
+        for i in range(8):
+            filename = f"{here}/{whichdir}/In/InitElemFiles/{big[i]}.aei"
+			
+			# Attempt to open the file; if it fails, move on
+            try:
+                with open(filename, 'r') as File:
+                    for j in range(timestep):
+                        thisline = File.readline().split()
+                        bigxv[i] = thisline[6:]
+            except FileNotFoundError:
+				# File not found; skip this iteration and continue with the next
+                continue
+
         # Moon parameters based on which run
         # B or D => smaller mass, H or L => larger (j)
         # 1 => smaller axis, 2 => larger axis
