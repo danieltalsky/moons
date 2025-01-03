@@ -76,12 +76,8 @@ class MercModule:
 
         here = os.getcwd()
 
-        InfoFile = open(
-            os.path.join(here, whichdir, '/Out/info.out'), 'r'
-        )
-        InfoLen = MercModule.FileLength(
-            os.path.join(here, whichdir , '/Out/info.out')
-        )
+        InfoFile = open(f"{here}/{whichdir}/Out/info.out", 'r')
+        InfoLen = MercModule.FileLength(f"{here}/{whichdir}/Out/info.out")
         dest = list(range((InfoLen - 5) // 4))
         time = numpy.zeros(((InfoLen - 5) / 4))
         skip = []
