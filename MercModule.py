@@ -246,9 +246,14 @@ class MercModule:
                          for i in list(range(len(big)))]
 
         # Read generic big.in file header
-        BigHeadFile = open('bigheader.txt', 'r')
-        BigHeader = BigHeadFile.readlines()
-        BigHeadFile.close()
+        BigHeader = [
+            ")O+_06 Big-body initial data  (WARNING: Do not delete this line!!)",
+            ") Lines beginning with `)' are ignored.",
+            ")---------------------------------------------------------------------",
+            "style (Cartesian, Asteroidal, Cometary) = Cartesian",
+            "epoch (in days) = 0.0",
+            ")---------------------------------------------------------------------"
+        ]
 
         # No spin for all objects
         bigs = ["  0.0  0.0  0.0\n" for i in list(range(len(BigFirstLines)))]
@@ -470,9 +475,13 @@ class MercModule:
                          for i in list(range(len(small)))]
 
         ### Read generic big.in file header
-        SmallHeadFile=open('SmallHeader.txt','r')
-        SmallHeader=SmallHeadFile.readlines()
-        SmallHeadFile.close()
+        SmallHeader = [
+            ")O+_06 Small-body initial data  (WARNING: Do not delete this line!!)",
+            ") Lines beginning with `)' are ignored.",
+            ")---------------------------------------------------------------------",
+            "style (Cartesian, Asteroidal, Cometary) = Cartesian",
+            ")---------------------------------------------------------------------",
+        ]
 
         ### No spin for all objects
         smalls=["  0.0  0.0  0.0\n" for i in list(range(len(small)))]
