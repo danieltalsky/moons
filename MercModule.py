@@ -77,6 +77,8 @@ class MercModule:
         here = os.getcwd()
 
         print(f"-----------------------here: {here} and whichdir: {whichdir}")
+        print(f"-----------------------ls: ")
+        print(os.listdir())
 
         InfoFile = open(f"{here}/{whichdir}/Out/info.out", 'r')
         InfoLen = MercModule.FileLength(f"{here}/{whichdir}/Out/info.out")
