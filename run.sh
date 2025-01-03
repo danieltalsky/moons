@@ -42,12 +42,12 @@ fi
 
 #### Randomize moon phases and rock positions
 		if [ $mode = 'gen' ]; then
-		python -c 'import MercModule; MercModule.MakeBigRand("'$1'","'$j'")'
-		python -c 'import MercModule; MercModule.MakeSmall("'$1'","'$j'",'$nobj',"'$pl'",1.0e12,1.0e2)'
+		python -c 'from MercModule import MercModule; MercModule.MakeBigRand("'$1'","'$j'")'
+		python -c 'from MercModule import MercModule; MercModule.MakeSmall("'$1'","'$j'",'$nobj',"'$pl'",1.0e12,1.0e2)'
 #### OR choose moon phases, use rocks from good.in
 		elif [ $mode = 'good' ]; then
-		python -c 'import MercModule; MercModule.MakeMoon("'$1'","5")'
-		python -c 'import MercModule; MercModule.Good2Small("'$1'","'$j'",2000)'
+		python -c 'from MercModule import MercModule; MercModule.MakeMoon("'$1'","5")'
+		python -c 'from MercModule import MercModule; MercModule.Good2Small("'$1'","'$j'",2000)'
 		fi
 	# Write param.in file
 	./writeparam.sh $1 $time $output $step $time $user
@@ -59,9 +59,9 @@ fi
 
 ### Write collisions summary, copy good in coords
 		if [ $mode = 'gen' ]; then
-		python -c 'import MercModule; MercModule.CopyInfo("'$1'","'$j'",True)'
+		python -c 'from MercModule import MercModule; MercModule.CopyInfo("'$1'","'$j'",True)'
 		elif [ $mode = 'good' ]; then
-		python -c 'import MercModule; MercModule.CopyInfo("'$1'","'$j'",False)'
+		python -c 'from MercModule import MercModule; MercModule.CopyInfo("'$1'","'$j'",False)'
 		fi
 	done	# j iterations
 
