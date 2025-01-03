@@ -5,6 +5,43 @@ from math import sqrt, pi, sin, cos
 
 class MercModule:
 
+    FILE_CONTENTS_PLANET_FIRST_LINES = [
+        "Mercury   5.427  1.660E-07",
+        "Venus     5.204  2.4476E-06",
+        "Earth     5.515  3.0032E-06",
+        "Mars      3.9335  3.2268E-07",
+        "Jupiter   1.326  9.54266E-04",
+        "Io        3.530  4.491E-08",
+        "Europa    2.99   2.412E-08",
+        "Ganymede  1.94   7.451E-08",
+        "Callisto  1.851  5.409E-08",
+        "Saturn    0.687  2.85717E-04",
+        "Enceladus 1.606  5.4321E-11",
+        "Rhea      1.233  1.161E-09",
+        "Titan     1.880  6.76452E-08",
+        "Iapetus   1.088  9.0790E-10",
+        "Uranus    1.318  4.36430E-05",
+        "Neptune   1.638  5.1486E-05",
+        "Plantsml    2.0  1.0012066e-17"       
+    ]
+
+    FILE_CONTENTS_SMALL_HEADER = [
+        ")O+_06 Small-body initial data  (WARNING: Do not delete this line!!)",
+        ") Lines beginning with `)' are ignored.",
+        ")---------------------------------------------------------------------",
+        "style (Cartesian, Asteroidal, Cometary) = Cartesian",
+        ")---------------------------------------------------------------------",        
+    ]
+
+    FILE_CONTENTS_BIG_HEADER = [
+        ")O+_06 Big-body initial data  (WARNING: Do not delete this line!!)",
+        ") Lines beginning with `)' are ignored.",
+        ")---------------------------------------------------------------------",
+        "style (Cartesian, Asteroidal, Cometary) = Cartesian",
+        "epoch (in days) = 0.0",
+        ")---------------------------------------------------------------------"
+    ]
+
     @staticmethod
     def FileLength(fname):
         """
@@ -37,8 +74,10 @@ class MercModule:
         """
         assert type(whichdir) is str
 
-        InfoFile = open(whichdir + '/Out/info.out', 'r')
-        InfoLen = MercModule.FileLength(whichdir + '/Out/info.out')
+        here = os.getcwd()
+
+        InfoFile = open(here + whichdir + '/Out/info.out', 'r')
+        InfoLen = MercModule.FileLength(here + whichdir + '/Out/info.out')
         dest = list(range((InfoLen - 5) // 4))
         time = numpy.zeros(((InfoLen - 5) / 4))
         skip = []
@@ -224,8 +263,7 @@ class MercModule:
         bigxv[5] = [repr(float(bigxv[4][i]) + xvmod[i]) for i in list(range(6))]
 
         # Read density and mass of planets
-        BigFirstLineFile = open('PlanetFirstLines.txt', 'r')
-        BigFirstData = BigFirstLineFile.readlines()
+        BigFirstData = MercModule.FILE_CONTENTS_PLANET_FIRST_LINES
         BigFirstData = [BigFirstData[i].split() for i in list(range(len(BigFirstData)))]
         BigFirstData = numpy.array(BigFirstData)
         dpl = numpy.array([0. for i in list(range(len(big)))])
@@ -246,14 +284,7 @@ class MercModule:
                          for i in list(range(len(big)))]
 
         # Read generic big.in file header
-        BigHeader = [
-            ")O+_06 Big-body initial data  (WARNING: Do not delete this line!!)",
-            ") Lines beginning with `)' are ignored.",
-            ")---------------------------------------------------------------------",
-            "style (Cartesian, Asteroidal, Cometary) = Cartesian",
-            "epoch (in days) = 0.0",
-            ")---------------------------------------------------------------------"
-        ]
+        BigHeader = MercModule.FILE_CONTENTS_BIG_HEADER
 
         # No spin for all objects
         bigs = ["  0.0  0.0  0.0\n" for i in list(range(len(BigFirstLines)))]
@@ -299,8 +330,7 @@ class MercModule:
             bigxv[i] = thisline[6:]
 
         # Read density and mass of planets
-        BigFirstLineFile = open('PlanetFirstLines.txt', 'r')
-        BigFirstData = BigFirstLineFile.readlines()
+        BigFirstData = MercModule.FILE_CONTENTS_PLANET_FIRST_LINES
         BigFirstData = [BigFirstData[i].split() for i in list(range(len(BigFirstData)))]
         BigFirstData = numpy.array(BigFirstData)
         dpl = numpy.array([0. for i in list(range(len(big)))])
@@ -319,9 +349,7 @@ class MercModule:
                          for i in list(range(len(big)))]
 
         # Read generic big.in file header
-        BigHeadFile = open('bigheader.txt', 'r')
-        BigHeader = BigHeadFile.readlines()
-        BigHeadFile.close()
+        BigHeader = MercModule.FILE_CONTENTS_BIG_HEADER
 
         # No spin for all objects
         bigs = ["  0.0  0.0  0.0\n" for i in list(range(len(BigFirstLines)))]
@@ -369,8 +397,8 @@ class MercModule:
             bigxv[i]=thisline[6:]
 
         ### Read density and mass of planets
-        BigFirstLineFile=open('PlanetFirstLines.txt','r')
-        BigFirstData=BigFirstLineFile.readlines()
+        BigFirstData = MercModule.FILE_CONTENTS_PLANET_FIRST_LINES
+
         BigFirstData=[BigFirstData[i].split() for i in list(range(len(BigFirstData)))]
         BigFirstData=numpy.array(BigFirstData)
         dpl=numpy.array([0. for i in list(range(len(big)))])
@@ -389,9 +417,7 @@ class MercModule:
                        for i in list(range(len(big)))]
 
         ### Read generic big.in file header
-        BigHeadFile=open('bigheader.txt','r')
-        BigHeader=BigHeadFile.readlines()
-        BigHeadFile.close()
+        BigHeader = MercModule.FILE_CONTENTS_BIG_HEADER
 
         ### No spin for all objects
         bigs=["  0.0  0.0  0.0\n" for i in list(range(len(BigFirstLines)))]
@@ -462,8 +488,8 @@ class MercModule:
             smallxv[j]=[repr(i) for i in smallxv[j]]
 
         ### Read density and mass of planetesimals
-        SmallFirstLineFile=open('PlanetFirstLines.txt','r')
-        SmallFirstData=SmallFirstLineFile.readlines()
+        SmallFirstData = MercModule.FILE_CONTENTS_PLANET_FIRST_LINES
+
         SmallFirstData=[SmallFirstData[i].split()
                         for i in list(range(len(SmallFirstData)))]
         SmallFirstData=numpy.array(SmallFirstData)
@@ -475,13 +501,7 @@ class MercModule:
                          for i in list(range(len(small)))]
 
         ### Read generic big.in file header
-        SmallHeader = [
-            ")O+_06 Small-body initial data  (WARNING: Do not delete this line!!)",
-            ") Lines beginning with `)' are ignored.",
-            ")---------------------------------------------------------------------",
-            "style (Cartesian, Asteroidal, Cometary) = Cartesian",
-            ")---------------------------------------------------------------------",
-        ]
+        SmallHeader = MercModule.FILE_CONTENTS_SMALL_HEADER
 
         ### No spin for all objects
         smalls=["  0.0  0.0  0.0\n" for i in list(range(len(small)))]
@@ -539,8 +559,8 @@ class MercModule:
             smalls[j] =s[GoodInd[j]]
 
         ### Read density and mass of planetesimals
-        SmallFirstLineFile=open('PlanetFirstLines.txt','r')
-        SmallFirstData=SmallFirstLineFile.readlines()
+        SmallFirstData = MercModule.FILE_CONTENTS_PLANET_FIRST_LINES
+
         SmallFirstData=[SmallFirstData[i].split()
                         for i in list(range(len(SmallFirstData)))]
         SmallFirstData=numpy.array(SmallFirstData)
@@ -552,9 +572,7 @@ class MercModule:
                          for i in list(range(len(name)))]
 
         ### Read generic big.in file header
-        SmallHeadFile=open('SmallHeader.txt','r')
-        SmallHeader=SmallHeadFile.readlines()
-        SmallHeadFile.close()
+        SmallHeader = MercModule.FILE_CONTENTS_SMALL_HEADER
 
         ### Write data
         MercModule.WriteObjInFile(here,whichdir,name,'small',
