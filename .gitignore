@@ -1,0 +1,8 @@
+# IDE files
+.idea/
+
+# Generated files
+runtime.txt
+
+# Python
+__pycache__/

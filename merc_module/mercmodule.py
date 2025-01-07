@@ -43,19 +43,28 @@ class MercModule:
     ]
 
     @staticmethod
-    def FileLength(fname):
+    def FileLength(filename: str) -> int:
         """
         Function to count the number of lines in a file
         """
-        with open(fname) as f:
+        with open(filename, "r") as f:
             return sum(1 for _ in f)
 
     @staticmethod
-    def WriteObjInFile(here, whichdir, names, filename, Header, FirstLines, xv, s):
+    def WriteObjInFile(
+        current_dir: str,
+        subdirectory: str,
+        names: list,
+        filename: str,
+        Header,
+        FirstLines,
+        xv,
+        s
+    ):
         """
         Write big.in or small.in file
         """
-        infile = open(here + '/' + whichdir + '/In/' + filename + '.in', 'w')
+        infile = open(current_dir + '/' + subdirectory + '/In/' + filename + '.in', 'w')
         # Header
         for i in list(range(len(Header))):
             infile.write(Header[i])
@@ -75,12 +84,6 @@ class MercModule:
         assert type(whichdir) is str
 
         here = os.getcwd()
-
-        print(f"-----------------------here: {here} and whichdir: {whichdir}")
-        print(f"-----------------------ls: ")
-        print(os.listdir())
-        print("--------ls of /Out/")
-        print(os.listdir("/home/runner/work/moons/moons/BDir2/Out"))
 
         InfoFile = open(f"{here}/{whichdir}/Out/info.out", 'r')
         InfoLen = MercModule.FileLength(f"{here}/{whichdir}/Out/info.out")

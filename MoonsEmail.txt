@@ -1,5 +1,0 @@
-To: rjw274@psu.edu
-From: rjw274@gmail.com
-Subject: re: Moons
-
-Check DDir1 on drake, iterations = 10
