@@ -7490,7 +7490,8 @@ c----
 c...  Executable code 
 
         call drift_kepu_guess(dt,r0,mu,alpha,u,s)
-         
+        call drift_kepu_guess(dt,r0,mu,alpha,u,s)
+
         st = s
 c..     store initial guess for possible use later in
 c..     laguerre's method, in case newton's method fails.

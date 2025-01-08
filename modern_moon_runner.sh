@@ -11,7 +11,7 @@ t1=$(date +%s)
 machine=$SIMULATED_MACHINE
 
 ### Simulation parameters
-time=3        # = log(years)
+time=2        # = log(years)
 output=1      # = log(years)
 step=0.5      # = days
 niter=1       # = number of iterations to run

@@ -5,7 +5,7 @@
 )---------------------------------------------------------------------
  algorithm (MVS, BS, BS2, RADAU, HYBRID etc) = hyb                    
  start time (days)= 0.0                                               
- stop time (days) = 365.25e3                                          
+ stop time (days) = 365.25e2                                          
  output interval (days) = 365.25e1                                    
  timestep (days) = 0.5                                               
  accuracy parameter=1.d-12                                            
@@ -33,5 +33,5 @@
  < not used at present >                                              
  < not used at present >                                              
  Hybrid integrator changeover (Hill radii) = 3.                       
- number of timesteps between data dumps = 146100                    
+ number of timesteps between data dumps = 14610                    
  number of timesteps between periodic effects = 10000                 

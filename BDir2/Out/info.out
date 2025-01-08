@@ -1,13 +1,11 @@
 
- WARNING: Truncating the name of this object to 8 characters:  Enceladus
-
            Integration parameters
            ----------------------
 
    Algorithm: Hybrid symplectic integrator (mixed coordinates)
 
    Integration start epoch:               0.0000000 days 
-   Integration stop  epoch:          365250.0000000
+   Integration stop  epoch:           36525.0000000
    Output interval:                    3652.500
    Output precision:                 medium
 
@@ -26,49 +24,117 @@
    Includes user-defined force routine: no 
 
    Number of Big bodies:       16
-   Number of Small bodies:   1000
+   Number of Small bodies:   6000
 
 
            Integration details
            -------------------
 
-   Initial energy:           -4.02251E-08 solar masses AU^2 day^-2 
-   Initial angular momentum:  1.29053E+02 solar masses AU^2 day^-1 
+   Initial energy:           -4.02070E-08 solar masses AU^2 day^-2 
+   Initial angular momentum:  6.08012E-05 solar masses AU^2 day^-1 
 
    Integrating massive bodies and particles up to the same epoch.
 
    Beginning the main integration.
 
- Jupiter  was hit by M724     at           0.045 years
- Jupiter  was hit by M754     at           0.049 years
- Jupiter  was hit by M414     at           0.059 years
- Jupiter  was hit by M30      at           0.067 years
- Jupiter  was hit by M927     at           0.088 years
- Jupiter  was hit by M808     at           0.129 years
- Jupiter  was hit by M334     at           0.822 years
- Jupiter  was hit by M510     at           1.210 years
- Jupiter  was hit by M195     at           1.291 years
- Jupiter  was hit by M554     at           1.354 years
- Jupiter  was hit by M573     at           1.586 years
- Jupiter  was hit by M218     at           1.694 years
- Jupiter  was hit by M228     at           1.761 years
- Jupiter  was hit by M200     at           1.853 years
- Jupiter  was hit by M419     at         147.030 years
- Jupiter  was hit by M713     at         158.409 years
- Jupiter  was hit by M925     at         202.460 years
- Jupiter  was hit by M705     at         235.931 years
- Jupiter  was hit by M122     at         246.234 years
- Jupiter  was hit by M64      at         347.471 years
- Jupiter  was hit by M51      at         527.582 years
- Jupiter  was hit by M557     at         619.419 years
- Jupiter  was hit by M404     at         902.562 years
- Jupiter  was hit by M770     at         904.560 years
- Jupiter  was hit by M356     at         923.610 years
+ Jupiter  was hit by M20      at           0.005 years
+ Jupiter  was hit by M4509    at           0.005 years
+ Jupiter  was hit by M3773    at           0.006 years
+ Jupiter  was hit by M3423    at           0.012 years
+ Jupiter  was hit by M1519    at           0.014 years
+ Jupiter  was hit by M2046    at           0.018 years
+ Jupiter  was hit by M1480    at           0.021 years
+ Jupiter  was hit by M1554    at           0.035 years
+ Jupiter  was hit by M4536    at           0.038 years
+ Jupiter  was hit by M3813    at           0.038 years
+ Jupiter  was hit by M3038    at           0.043 years
+ Jupiter  was hit by M3887    at           0.061 years
+ Jupiter  was hit by M2199    at           0.061 years
+ Jupiter  was hit by M30      at           0.061 years
+ Jupiter  was hit by M429     at           0.062 years
+ Jupiter  was hit by M4143    at           0.065 years
+ Jupiter  was hit by M2560    at           0.066 years
+ Jupiter  was hit by M4998    at           0.069 years
+ Jupiter  was hit by M5410    at           0.072 years
+ Jupiter  was hit by M5040    at           0.094 years
+ Jupiter  was hit by M1512    at           0.119 years
+ Jupiter  was hit by M2271    at           0.121 years
+ Jupiter  was hit by M1359    at           0.126 years
+ Jupiter  was hit by M1358    at           0.135 years
+ Jupiter  was hit by M2202    at           0.142 years
+ Jupiter  was hit by M5660    at           0.146 years
+ Jupiter  was hit by M2032    at           0.147 years
+ Jupiter  was hit by M5840    at           0.150 years
+ Jupiter  was hit by M2469    at           0.153 years
+ Jupiter  was hit by M1040    at           0.154 years
+ Jupiter  was hit by M2941    at           0.164 years
+ Jupiter  was hit by M1548    at           0.171 years
+ Jupiter  was hit by M341     at           0.181 years
+ Jupiter  was hit by M2643    at           0.193 years
+ Jupiter  was hit by M3961    at           0.193 years
+ Jupiter  was hit by M2990    at           0.197 years
+ Jupiter  was hit by M4918    at           0.202 years
+ Jupiter  was hit by M5805    at           0.215 years
+ Jupiter  was hit by M4601    at           0.228 years
+ Jupiter  was hit by M2258    at           0.233 years
+ Jupiter  was hit by M3550    at           0.516 years
+ Jupiter  was hit by M5124    at           0.605 years
+ Jupiter  was hit by M4692    at           0.609 years
+ Jupiter  was hit by M5572    at           0.713 years
+ Jupiter  was hit by M3653    at           1.000 years
+ Jupiter  was hit by M3384    at           1.002 years
+ Jupiter  was hit by M5426    at           1.309 years
+ Jupiter  was hit by M5365    at           1.493 years
+ Jupiter  was hit by M234     at           1.535 years
+ Jupiter  was hit by M1289    at           1.629 years
+ Jupiter  was hit by M2000    at           1.651 years
+ Jupiter  was hit by M2695    at           1.662 years
+ Jupiter  was hit by M5554    at           1.685 years
+ Jupiter  was hit by M3847    at           1.720 years
+ Jupiter  was hit by M816     at           1.763 years
+ Jupiter  was hit by M1077    at           1.865 years
+ Jupiter  was hit by M2935    at           1.886 years
+ Jupiter  was hit by M4052    at           1.893 years
+ Jupiter  was hit by M1122    at           1.980 years
+ Jupiter  was hit by M4416    at           2.018 years
+ Jupiter  was hit by M4412    at           2.065 years
+ Jupiter  was hit by M1551    at           2.175 years
+ Jupiter  was hit by M2823    at           2.177 years
+ Jupiter  was hit by M79      at           2.211 years
+ Jupiter  was hit by M1467    at           2.255 years
+ Jupiter  was hit by M107     at           2.259 years
+ Jupiter  was hit by M5824    at           2.319 years
+ Jupiter  was hit by M1696    at           2.353 years
+ Jupiter  was hit by M5904    at           2.388 years
+ Jupiter  was hit by M237     at           2.423 years
+ Jupiter  was hit by M2942    at           2.565 years
+ Jupiter  was hit by M902     at           2.580 years
+ Jupiter  was hit by M1831    at           2.600 years
+ Jupiter  was hit by M1614    at           2.610 years
+ Jupiter  was hit by M1180    at           2.951 years
+ Jupiter  was hit by M5625    at           2.996 years
+ Jupiter  was hit by M4552    at           3.058 years
+ Jupiter  was hit by M1962    at           3.098 years
+ Jupiter  was hit by M356     at          16.830 years
+ Jupiter  was hit by M3639    at          16.898 years
+ Jupiter  was hit by M5650    at          20.766 years
+ Jupiter  was hit by M4590    at          33.748 years
+ Jupiter  was hit by M4898    at          40.719 years
+ Jupiter  was hit by M4174    at          50.023 years
+ Jupiter  was hit by M5296    at          53.366 years
+ Europa   was hit by M2068    at          60.153 years
+ Jupiter  was hit by M483     at          70.073 years
+ Jupiter  was hit by M5541    at          83.126 years
+ Jupiter  was hit by M2063    at          88.547 years
+ Jupiter  was hit by M202     at          88.755 years
+ Jupiter  was hit by M932     at          91.071 years
+ Jupiter  was hit by M2145    at          93.172 years
+ Jupiter  was hit by M249     at          96.093 years
 
    Integration complete.
 
-   Fractional energy change due to integrator:   5.06958E-12
-   Fractional angular momentum change:           5.45105E-16
+   Fractional energy change due to integrator:   1.62363E-10
+   Fractional angular momentum change:           4.26652E-14
 
-   Fractional energy change due to collisions/ejections:  1.20213E-14
+   Fractional energy change due to collisions/ejections:  8.32681E-14
    Fractional angular momentum change:                    0.00000E+00

@@ -4,11 +4,11 @@
 ) Important integration parameters:
 )---------------------------------------------------------------------
   algorithm (MVS, BS, BS2, RADAU, HYBRID etc) =  HYBRID
-  start time (days) =    0.00000000000000     
-  stop time (days) =    365250.000000000     
-  output interval (days) =    3652.50000000000     
-  timestep (days) =   0.500000000000000     
-  accuracy parameter =   1.000000000000000E-012
+  start time (days) =    0.0000000000000000     
+  stop time (days) =    36525.000000000000     
+  output interval (days) =    3652.5000000000000     
+  timestep (days) =   0.50000000000000000     
+  accuracy parameter =    9.9999999999999998E-013
 )---------------------------------------------------------------------
 ) Integration options:
 )---------------------------------------------------------------------
@@ -24,14 +24,14 @@
 )---------------------------------------------------------------------
 ) These parameters do not need to be adjusted often:
 )---------------------------------------------------------------------
-  ejection distance (AU) =    100000.000000000     
-  radius of central body (AU) =   5.100000000000000E-003
-  central mass (solar masses) =    1.10500000000000     
-  central J2 =    0.00000000000000     
-  central J4 =    0.00000000000000     
-  central J6 =    0.00000000000000     
+  ejection distance (AU) =    100000.00000000000     
+  radius of central body (AU) =    5.1000000000000004E-003
+  central mass (solar masses) =    1.1050000000000000     
+  central J2 =    0.0000000000000000     
+  central J4 =    0.0000000000000000     
+  central J6 =    0.0000000000000000     
   < Not used at present >
   < Not used at present >
-  Hybrid integrator changeover (Hill radii) =    3.00000000000000     
-  number of timesteps between data dumps =       146100
+  Hybrid integrator changeover (Hill radii) =    3.0000000000000000     
+  number of timesteps between data dumps =        14610
   number of timesteps between periodic effects =        10000

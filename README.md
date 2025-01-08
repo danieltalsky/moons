@@ -17,3 +17,16 @@ Then, at the project root, simply bring up the docker container:
 ```bash
 docker compose up
 ```
+
+## Run log
+
+## 100 years, 6000 particles
+
+At 1 CPU and 1GB of memory, ~99% CPU utilization, ~5% memory utilization
+8m 15s
+
+At 2 CPU's and 1GB of memory, ~99% CPU utilization, ~5% memory utilization
+7m 34s
+
+At 4 CPU's and 16GB of memory, ~99% CPU utilization, ~5% memory utilization
+7m 34s
