@@ -1,7 +1,0 @@
-services:
-
-  moons:
-    build:
-      context: .
-    volumes:
-      - ./:/app:Z
