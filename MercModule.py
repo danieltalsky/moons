@@ -7,11 +7,11 @@ FILE_CONTENTS_SMALL_HEADER = ["FILE CONTENTS ARE HERE IN THE REAL VERSION"]
 FILE_CONTENTS_BIG_HEADER = ["FILE CONTENTS ARE HERE IN THE REAL VERSION"]
 
 @staticmethod
-def FileLength(filename: str) -> int:
+def FileLength(fname):
     """
     Function to count the number of lines in a file
     """
-    with open(filename, "r") as f:
+    with open(fname, "r") as f:
         return sum(1 for _ in f)
 
 @staticmethod
