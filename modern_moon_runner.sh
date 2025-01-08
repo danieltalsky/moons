@@ -45,12 +45,19 @@ for j in $itrange; do
     uv run python -c 'from merc_module.mercmodule import MercModule; MercModule.MakeSmall("'$RUN_DIRECTORY'","'$j'",'$nobj',"'$pl'",1.0e12,1.0e2)'
 
     # Write param.in file
-    ./writeparam.sh $RUN_DIRECTORY $time $output $step $time $user
+    # ./writeparam.sh $RUN_DIRECTORY $time $output $step $time $user
     # Compile mercury
     gfortran -std=legacy -w -o ${RUN_DIRECTORY}/Out/merc_${RUN_DIRECTORY} Files/$vers
-#
+    # Compile with profiling flags
+    # gfortran -std=legacy -w -pg -o ${RUN_DIRECTORY}/Out/merc_${RUN_DIRECTORY} Files/$vers
+    # Compile with OpenMP support
+    # gfortran -w -o ${RUN_DIRECTORY}/Out/merc_${RUN_DIRECTORY} Files/$vers
+
     #### Run mercury
     cd $RUN_DIRECTORY/Out; ./merc_$RUN_DIRECTORY; cd ../..
+
+    # example of a run with gprof
+    # cd $RUN_DIRECTORY/Out; gprof merc_$RUN_DIRECTORY > test_output.txt; cd ../..
 #
 #    ### Write collisions summary, copy good in coords
 #    # using gen only

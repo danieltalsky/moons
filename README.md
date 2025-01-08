@@ -30,3 +30,32 @@ At 2 CPU's and 1GB of memory, ~99% CPU utilization, ~5% memory utilization
 
 At 4 CPU's and 16GB of memory, ~99% CPU utilization, ~5% memory utilization
 7m 34s
+
+On an amazon EC2 instance
+5m 45s
+
+At 3 CPU's and 8GB of memory, compiled without legacy flag
+8m 8s
+
+
+## Setting up an AWS EC2 instance
+- Launch in the console
+- Login with `ssh -i 'C:\Users\Daniel Talsky\.ssh\RDSRP.pem' ec2-user@<ip-address>`
+- ```commandline
+sudo yum update -y
+sudo yum install docker git -y
+sudo usermod -a -G docker ec2-user
+id ec2-user
+newgrp docker
+sudo yum install python3-pip -y
+sudo pip3 install docker-compose
+sudo systemctl enable docker.service
+sudo systemctl start docker.service
+
+git clone https://github.com/danieltalsky/Moons.git
+cd Moons
+git checkout performance-benchmark-settings
+
+sudo docker-compose up -d
+
+```
