@@ -143,7 +143,7 @@ class MercModule:
         # Summarize impacts for infosum.out
         destname = ['Sun', 'Mercury', 'Venus', 'Earth', 'Mars', 'Jupiter', 'Moon', 'Saturn', 'Ejected']
         InfoSum = [0] * len(destname)
-        if numpy.array(dest1) != 0:
+        if len(dest1) and any(i != 0 for i in dest1):
             for k, _ in enumerate(destname):
                 InfoSum[k] = dest1.count(destname[k])
 
@@ -153,9 +153,13 @@ class MercModule:
         timestepfile.close()
 
         # Get total number of objects in simulation
+        NUMBER_OF_LINES_IN_OBJECT_GROUPS = 4
         SmallInFileLength = MercModule.FileLength(whichdir + '/In/small.in')
-        NTot = (SmallInFileLength - 5) / 4
-        assert type(NTot) is int
+        total_objects_in_file = (SmallInFileLength -
+                                 len(MercModule.FILE_CONTENTS_SMALL_HEADER)
+            ) / NUMBER_OF_LINES_IN_OBJECT_GROUPS
+        NTot = int(total_objects_in_file)
+        assert total_objects_in_file == int(NTot)
 
         # Write summed impacts to file
         InfoSumFile = open(whichdir + '/infosum.out', 'a')
