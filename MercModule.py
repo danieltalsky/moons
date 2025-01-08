@@ -2,43 +2,9 @@ import numpy
 import os
 from random import random, sample
 from math import sqrt, pi, sin, cos
-
-FILE_CONTENTS_PLANET_FIRST_LINES = [
-    "Mercury   5.427  1.660E-07\n",
-    "Venus     5.204  2.4476E-06\n",
-    "Earth     5.515  3.0032E-06\n",
-    "Mars      3.9335  3.2268E-07\n",
-    "Jupiter   1.326  9.54266E-04\n",
-    "Io        3.530  4.491E-08\n",
-    "Europa    2.99   2.412E-08\n",
-    "Ganymede  1.94   7.451E-08\n",
-    "Callisto  1.851  5.409E-08\n",
-    "Saturn    0.687  2.85717E-04\n",
-    "Enceladus 1.606  5.4321E-11\n",
-    "Rhea      1.233  1.161E-09\n",
-    "Titan     1.880  6.76452E-08\n",
-    "Iapetus   1.088  9.0790E-10\n",
-    "Uranus    1.318  4.36430E-05\n",
-    "Neptune   1.638  5.1486E-05\n",
-    "Plantsml    2.0  1.0012066e-17\n"
-]
-
-FILE_CONTENTS_SMALL_HEADER = [
-    ")O+_06 Small-body initial data  (WARNING: Do not delete this line!!)\n",
-    ") Lines beginning with `)' are ignored.\n",
-    ")---------------------------------------------------------------------\n",
-    "style (Cartesian, Asteroidal, Cometary) = Cartesian\n",
-    ")---------------------------------------------------------------------\n",
-]
-
-FILE_CONTENTS_BIG_HEADER = [
-    ")O+_06 Big-body initial data  (WARNING: Do not delete this line!!)\n",
-    ") Lines beginning with `)' are ignored.\n",
-    ")---------------------------------------------------------------------\n",
-    "style (Cartesian, Asteroidal, Cometary) = Cartesian\n",
-    "epoch (in days) = 0.0\n",
-    ")---------------------------------------------------------------------\n"
-]
+FILE_CONTENTS_PLANET_FIRST_LINES = ["FILE CONTENTS ARE HERE IN THE REAL VERSION"]
+FILE_CONTENTS_SMALL_HEADER = ["FILE CONTENTS ARE HERE IN THE REAL VERSION"]
+FILE_CONTENTS_BIG_HEADER = ["FILE CONTENTS ARE HERE IN THE REAL VERSION"]
 
 @staticmethod
 def FileLength(filename: str) -> int:
