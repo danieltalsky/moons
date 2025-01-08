@@ -1,7 +1,0 @@
-[project]
-name = "merc-module"
-version = "0.1.0"
-description = "Mercury module: calculates prep data for fortran mercury calculator."
-readme = "README.md"
-requires-python = ">=3.12"
-dependencies = ["numpy"]
