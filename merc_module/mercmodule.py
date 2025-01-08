@@ -6,40 +6,40 @@ from math import sqrt, pi, sin, cos
 class MercModule:
 
     FILE_CONTENTS_PLANET_FIRST_LINES = [
-        "Mercury   5.427  1.660E-07",
-        "Venus     5.204  2.4476E-06",
-        "Earth     5.515  3.0032E-06",
-        "Mars      3.9335  3.2268E-07",
-        "Jupiter   1.326  9.54266E-04",
-        "Io        3.530  4.491E-08",
-        "Europa    2.99   2.412E-08",
-        "Ganymede  1.94   7.451E-08",
-        "Callisto  1.851  5.409E-08",
-        "Saturn    0.687  2.85717E-04",
-        "Enceladus 1.606  5.4321E-11",
-        "Rhea      1.233  1.161E-09",
-        "Titan     1.880  6.76452E-08",
-        "Iapetus   1.088  9.0790E-10",
-        "Uranus    1.318  4.36430E-05",
-        "Neptune   1.638  5.1486E-05",
-        "Plantsml    2.0  1.0012066e-17"       
+        "Mercury   5.427  1.660E-07\n",
+        "Venus     5.204  2.4476E-06\n",
+        "Earth     5.515  3.0032E-06\n",
+        "Mars      3.9335  3.2268E-07\n",
+        "Jupiter   1.326  9.54266E-04\n",
+        "Io        3.530  4.491E-08\n",
+        "Europa    2.99   2.412E-08\n",
+        "Ganymede  1.94   7.451E-08\n",
+        "Callisto  1.851  5.409E-08\n",
+        "Saturn    0.687  2.85717E-04\n",
+        "Enceladus 1.606  5.4321E-11\n",
+        "Rhea      1.233  1.161E-09\n",
+        "Titan     1.880  6.76452E-08\n",
+        "Iapetus   1.088  9.0790E-10\n",
+        "Uranus    1.318  4.36430E-05\n",
+        "Neptune   1.638  5.1486E-05\n",
+        "Plantsml    2.0  1.0012066e-17\n"
     ]
 
     FILE_CONTENTS_SMALL_HEADER = [
-        ")O+_06 Small-body initial data  (WARNING: Do not delete this line!!)",
-        ") Lines beginning with `)' are ignored.",
-        ")---------------------------------------------------------------------",
-        "style (Cartesian, Asteroidal, Cometary) = Cartesian",
-        ")---------------------------------------------------------------------",        
+        ")O+_06 Small-body initial data  (WARNING: Do not delete this line!!)\n",
+        ") Lines beginning with `)' are ignored.\n",
+        ")---------------------------------------------------------------------\n",
+        "style (Cartesian, Asteroidal, Cometary) = Cartesian\n",
+        ")---------------------------------------------------------------------\n",
     ]
 
     FILE_CONTENTS_BIG_HEADER = [
-        ")O+_06 Big-body initial data  (WARNING: Do not delete this line!!)",
-        ") Lines beginning with `)' are ignored.",
-        ")---------------------------------------------------------------------",
-        "style (Cartesian, Asteroidal, Cometary) = Cartesian",
-        "epoch (in days) = 0.0",
-        ")---------------------------------------------------------------------"
+        ")O+_06 Big-body initial data  (WARNING: Do not delete this line!!)\n",
+        ") Lines beginning with `)' are ignored.\n",
+        ")---------------------------------------------------------------------\n",
+        "style (Cartesian, Asteroidal, Cometary) = Cartesian\n",
+        "epoch (in days) = 0.0\n",
+        ")---------------------------------------------------------------------\n"
     ]
 
     @staticmethod
@@ -56,25 +56,24 @@ class MercModule:
         subdirectory: str,
         names: list,
         filename: str,
-        Header,
-        FirstLines,
+        Header: list,
+        FirstLines: list,
         xv,
         s
     ):
         """
         Write big.in or small.in file
         """
-        infile = open(current_dir + '/' + subdirectory + '/In/' + filename + '.in', 'w')
-        # Header
-        for i in list(range(len(Header))):
-            infile.write(Header[i])
-        # Data
-        for i in list(range(len(names))):
-            infile.write(FirstLines[i])
-            infile.write("  " + xv[i][0] + "  " + xv[i][1] + "  " + xv[i][2] + "\n")
-            infile.write("  " + xv[i][3] + "  " + xv[i][4] + "  " + xv[i][5] + "\n")
-            infile.write(s[i])
-        infile.close()
+        with open(current_dir + '/' + subdirectory + '/In/' + filename + '.in', 'w') as infile:
+
+            # Header
+            infile.writelines(Header)
+            # Data
+            for i in range(len(names)):
+                infile.write(FirstLines[i])
+                infile.write("  " + xv[i][0] + "  " + xv[i][1] + "  " + xv[i][2] + "\n")
+                infile.write("  " + xv[i][3] + "  " + xv[i][4] + "  " + xv[i][5] + "\n")
+                infile.write(s[i])
 
     @staticmethod
     def ReadInfo(whichdir):
@@ -87,8 +86,6 @@ class MercModule:
 
         InfoFile = open(f"{here}/{whichdir}/Out/info.out", 'r')
         InfoLen = MercModule.FileLength(f"{here}/{whichdir}/Out/info.out")
-        dest = list(range((InfoLen - 5) // 4))
-        time = numpy.zeros(((InfoLen - 5) / 4))
         skip = []
         flen = 7
         header = True
@@ -145,10 +142,10 @@ class MercModule:
 
         # Summarize impacts for infosum.out
         destname = ['Sun', 'Mercury', 'Venus', 'Earth', 'Mars', 'Jupiter', 'Moon', 'Saturn', 'Ejected']
-        InfoSum = [0] * (len(destname))
+        InfoSum = [0] * len(destname)
         if numpy.array(dest1) != 0:
-            for k in list(range(len(destname))):
-                InfoSum[k] = sum(numpy.array(dest1) == destname[k])
+            for k, _ in enumerate(destname):
+                InfoSum[k] = dest1.count(destname[k])
 
         # Get which timestep was used, and store in last column of InfoSum
         timestepfile = open(whichdir + '/timestep.txt', 'r')
@@ -173,20 +170,19 @@ class MercModule:
         if writegood:
             gooddest = ['Jupiter', 'Io', 'Europa', 'Ganymede', 'Callisto', 'Moon', 'Saturn', 'Enceladu', 'Rhea', 'Titan', 'Iapetus']
             ind = numpy.array([
-                (any(dest1[i] == gooddest[j] for j in range(len(gooddest))))
-                for i in list(range(len(dest1)))])
-            if (len(name1) > 0):
+                (any(dest1[i] == gooddest[j] for j, _ in enumerate(gooddest)))
+                for i, _ in enumerate(dest1)])
+            if len(name1) > 0:
                 name = numpy.array(name1)[ind]
-                dest = numpy.array(dest1)[ind]
                 goodin = open(whichdir + '/good.in', 'a')
                 smallin = open(whichdir + '/In/small.in', 'r')
                 SmallLen = MercModule.FileLength(whichdir + '/In/small.in')
-                smalllines = ['' for i in list(range(SmallLen))]
-                for j in list(range(5)):
+                smalllines = ['' for i in range(SmallLen)]
+                for j in range(5):
                     smalllines[j] = smallin.readline()
-                for j in list(range(5, SmallLen)):
+                for j in range(5, SmallLen):
                     smalllines[j] = smallin.readline()
-                    if any(name[i] == smalllines[k].split()[0] and float(time1[i]) > 60. for i in list(range(len(name))) for k in range(j - 3, j + 1)):
+                    if any(name[i] == smalllines[k].split()[0] and float(time1[i]) > 60. for i, _ in enumerate(name) for k in range(j - 3, j + 1)):
                         goodin.write(smalllines[j])
                 goodin.close()
                 smallin.close()
@@ -211,23 +207,24 @@ class MercModule:
         day = 24. * 3600.  # s/day
 
         big = ['Mercury', 'Venus', 'Earth', 'Mars', 'Jupiter', 'Moon', 'Saturn', 'Uranus', 'Neptune']
-        bigxv = ['' for i in list(range(len(big)))]
+        bigxv = [''] * len(big)
 
         # Use chosen timestep
         timestep = int(whichtime)
 
         # Find the correct timestep for the planets
-        for i in range(8):
+        # 0-8 without 5
+        for i in [0, 1, 2, 3, 4, 6, 7, 8]:
             filename = f"{here}/{whichdir}/In/InitElemFiles/{big[i]}.aei"
 			
-			# Attempt to open the file; if it fails, move on
+            # Attempt to open the file; if it fails, move on
             try:
                 with open(filename, 'r') as File:
                     for j in range(timestep):
                         thisline = File.readline().split()
                         bigxv[i] = thisline[6:]
             except FileNotFoundError:
-				# File not found; skip this iteration and continue with the next
+                # File not found; skip this iteration and continue with the next
                 continue
 
         # Moon parameters based on which run
@@ -269,34 +266,34 @@ class MercModule:
         xvmod = [x, y, z, u, v, w]
 
         # Add Moon's position to Jupiter's
-        bigxv[5] = [repr(float(bigxv[4][i]) + xvmod[i]) for i in list(range(6))]
+        bigxv[5] = [repr(float(bigxv[4][i]) + xvmod[i]) for i in range(6)]
 
         # Read density and mass of planets
         BigFirstData = MercModule.FILE_CONTENTS_PLANET_FIRST_LINES
-        BigFirstData = [BigFirstData[i].split() for i in list(range(len(BigFirstData)))]
+        BigFirstData = [BigFirstData[i].split() for i, _ in enumerate(BigFirstData)]
         BigFirstData = numpy.array(BigFirstData)
-        dpl = numpy.array([0. for i in list(range(len(big)))])
-        mpl = numpy.array([0. for i in list(range(len(big)))])
+        dpl = numpy.array([0.0 for _ in range(len(big))])
+        mpl = numpy.array([0.0 for _ in range(len(big))])
 
-        for j in list(range(len(big))):
+        for j, _ in enumerate(big):
             if numpy.any(BigFirstData[:, 0] == big[j]):
                 dpl[j] = BigFirstData[BigFirstData[:, 0] == big[j], 1][0]
                 mpl[j] = BigFirstData[BigFirstData[:, 0] == big[j], 2][0]
         dpl[numpy.array(big) == 'Moon'] = d
         mpl[numpy.array(big) == 'Moon'] = m
 
-        dpl = [str(dpl[i]) for i in list(range(len(dpl)))]
-        mpl = [str(mpl[i]) for i in list(range(len(dpl)))]
+        dpl = [str(dpl[i]) for i in range(len(dpl))]
+        mpl = [str(mpl[i]) for i in range(len(dpl))]
 
         # Format data as the first line of each big.in object entry
         BigFirstLines = [big[i].ljust(10) + 'd= ' + dpl[i] + '  m= ' + mpl[i] + '\n'
-                         for i in list(range(len(big)))]
+                         for i in range(len(big))]
 
         # Read generic big.in file header
         BigHeader = MercModule.FILE_CONTENTS_BIG_HEADER
 
         # No spin for all objects
-        bigs = ["  0.0  0.0  0.0\n" for i in list(range(len(BigFirstLines)))]
+        bigs = ["  0.0  0.0  0.0\n"] * len(BigFirstLines)
 
         MercModule.WriteObjInFile(here, whichdir, big, 'big',
                                   BigHeader, BigFirstLines, bigxv, bigs)
@@ -325,43 +322,43 @@ class MercModule:
 
         big = ['Mercury', 'Venus', 'Earth', 'Mars', 'Jupiter', 'Io', 'Europa', 'Ganymede', 'Callisto',
                'Saturn', 'Enceladu', 'Rhea', 'Titan', 'Iapetus', 'Uranus', 'Neptune']
-        bigxv = ['' for i in list(range(len(big)))]
+        bigxv = [''] * len(big)
 
         # Use chosen timestep
         timestep = int(whichtime)
 
         # Find the correct timestep for each big thing
-        for i in list(range(len(big))):
+        for i in range(len(big)):
             filename = here + '/' + whichdir + '/In/InitElemFiles/' + big[i] + '.aei'
             File = open(filename, 'r')
-            for j in list(range(timestep)):
+            for j in range(timestep):
                 thisline = File.readline().split()
             bigxv[i] = thisline[6:]
 
         # Read density and mass of planets
         BigFirstData = MercModule.FILE_CONTENTS_PLANET_FIRST_LINES
-        BigFirstData = [BigFirstData[i].split() for i in list(range(len(BigFirstData)))]
+        BigFirstData = [BigFirstData[i].split() for i in range(len(BigFirstData))]
         BigFirstData = numpy.array(BigFirstData)
-        dpl = numpy.array([0. for i in list(range(len(big)))])
-        mpl = numpy.array([0. for i in list(range(len(big)))])
+        dpl = numpy.array([0.0 for _ in range(len(big))])
+        mpl = numpy.array([0.0 for _ in range(len(big))])
 
-        for j in list(range(len(big))):
+        for j in range(len(big)):
             if numpy.any(BigFirstData[:, 0] == big[j]):
                 dpl[j] = BigFirstData[BigFirstData[:, 0] == big[j], 1][0]
                 mpl[j] = BigFirstData[BigFirstData[:, 0] == big[j], 2][0]
 
-        dpl = [str(dpl[i]) for i in list(range(len(dpl)))]
-        mpl = [str(mpl[i]) for i in list(range(len(dpl)))]
+        dpl = [str(dpl[i]) for i in range(len(dpl))]
+        mpl = [str(mpl[i]) for i in range(len(dpl))]
 
         # Format data as the first line of each big.in object entry
         BigFirstLines = [big[i].ljust(10) + 'd= ' + dpl[i] + '  m= ' + mpl[i] + '\n'
-                         for i in list(range(len(big)))]
+                         for i in range(len(big))]
 
         # Read generic big.in file header
         BigHeader = MercModule.FILE_CONTENTS_BIG_HEADER
 
         # No spin for all objects
-        bigs = ["  0.0  0.0  0.0\n" for i in list(range(len(BigFirstLines)))]
+        bigs = ["  0.0  0.0  0.0\n"] * len(BigFirstLines)
 
         MercModule.WriteObjInFile(here, whichdir, big, 'big',
                                   BigHeader, BigFirstLines, bigxv, bigs)
@@ -389,47 +386,47 @@ class MercModule:
 
         #	big=['Mercury','Venus','Earth','Mars','Jupiter',
         #	'Io','Europa','Ganymede','Callisto','Saturn','Uranus','Neptune']
-        big=['Mercury','Venus','Earth','Mars', 		'Jupiter','Io','Europa','Ganymede','Callisto',
+        big = ['Mercury','Venus','Earth','Mars', 		'Jupiter','Io','Europa','Ganymede','Callisto',
              'Saturn','Enceladu','Rhea','Titan','Iapetus','Uranus','Neptune']
-        bigxv=['' for i in list(range(len(big)))]
+        bigxv = [''] * len(big)
 
         ### Pick a random timestep and get all big vectors at that point
         AEILen=MercModule.FileLength(here+'/'+whichdir+'/In/InitElemFiles/Jupiter.aei')-5
         timestep=5+int(AEILen*random())
 
         # Find the correct timestep for each big thing
-        for i in list(range(len(big))):
+        for i in range(len(big)):
             filename=here+'/'+whichdir+'/In/InitElemFiles/'+big[i]+'.aei'
             File=open(filename,'r')
-            for j in list(range(timestep)):
+            for j in range(timestep):
                 thisline=File.readline().split()
             bigxv[i]=thisline[6:]
 
         ### Read density and mass of planets
         BigFirstData = MercModule.FILE_CONTENTS_PLANET_FIRST_LINES
 
-        BigFirstData=[BigFirstData[i].split() for i in list(range(len(BigFirstData)))]
+        BigFirstData=[BigFirstData[i].split() for i in range(len(BigFirstData))]
         BigFirstData=numpy.array(BigFirstData)
-        dpl=numpy.array([0. for i in list(range(len(big)))])
-        mpl=numpy.array([0. for i in list(range(len(big)))])
+        dpl=numpy.array([0.0 for _ in range(len(big))])
+        mpl=numpy.array([0.0 for _ in range(len(big))])
 
-        for j in list(range(len(big))):
+        for j in range(len(big)):
             if numpy.any(BigFirstData[:,0]==big[j]):
                 dpl[j]=BigFirstData[BigFirstData[:,0]==big[j],1][0]
                 mpl[j]=BigFirstData[BigFirstData[:,0]==big[j],2][0]
 
-        dpl=[str(dpl[i]) for i in list(range(len(dpl)))]
-        mpl=[str(mpl[i]) for i in list(range(len(dpl)))]
+        dpl=[str(dpl[i]) for i in range(len(dpl))]
+        mpl=[str(mpl[i]) for i in range(len(dpl))]
 
         ### Format data as the first line of each big.in object entry
         BigFirstLines=[big[i].ljust(10)+'d= '+dpl[i]+'  m= '+mpl[i]+'\n'
-                       for i in list(range(len(big)))]
+                       for i in range(len(big))]
 
         ### Read generic big.in file header
         BigHeader = MercModule.FILE_CONTENTS_BIG_HEADER
 
         ### No spin for all objects
-        bigs=["  0.0  0.0  0.0\n" for i in list(range(len(BigFirstLines)))]
+        bigs = ["  0.0  0.0  0.0\n"] * len(BigFirstLines)
 
         ### Write data
         MercModule.WriteObjInFile(here,whichdir,big,'big',
@@ -458,11 +455,11 @@ class MercModule:
         maxaspread=da/AU				#in AU
         maxvspread=dv*day/AU			#in AU/day
 
-        small=['M'+str(i) for i in list(range(n))]
-        smallxv=['' for i in list(range(n))]
+        small=['M'+str(i) for i in range(n)]
+        smallxv=[''] * n
 
         ### Generate slightly randomized rocks at different phases of Jupiter or Saturn's orbit
-        for j in list(range(0,len(small))):
+        for j in range(len(small)):
             ### Pick a random timestep
             if whichpl=='J':
                 filename=here+'/'+whichdir+'/In/InitElemFiles/Jupiter12Yr.aei'
@@ -472,7 +469,7 @@ class MercModule:
             timestep=5+int(AEILen*random())
             ### Get Jupiter/Saturn's info at this point
             File=open(filename,'r')
-            for k in list(range(timestep)):
+            for _ in range(timestep):
                 thisline=File.readline().split()
             bigxv=thisline[6:]
 
@@ -500,24 +497,30 @@ class MercModule:
         SmallFirstData = MercModule.FILE_CONTENTS_PLANET_FIRST_LINES
 
         SmallFirstData=[SmallFirstData[i].split()
-                        for i in list(range(len(SmallFirstData)))]
+                        for i in range(len(SmallFirstData))]
         SmallFirstData=numpy.array(SmallFirstData)
         d=str(SmallFirstData[SmallFirstData[:,0]=='Plantsml',1][0])
         m=str(SmallFirstData[SmallFirstData[:,0]=='Plantsml',2][0])
 
         ### Format data as the first line of each big.in object entry
         SmallFirstLines=[small[i].ljust(10)+'d= '+d+'  m= '+m+'  r= 0.001\n'
-                         for i in list(range(len(small)))]
+                         for i in range(len(small))]
 
         ### Read generic big.in file header
         SmallHeader = MercModule.FILE_CONTENTS_SMALL_HEADER
 
         ### No spin for all objects
-        smalls=["  0.0  0.0  0.0\n" for i in list(range(len(small)))]
+        smalls=["  0.0  0.0  0.0\n"] * len(small)
 
         ### Write data
-        MercModule.WriteObjInFile(here,whichdir,small,'small',
-                                  SmallHeader,SmallFirstLines,smallxv,smalls)
+        MercModule.WriteObjInFile(current_dir=here,
+                                  subdirectory=whichdir,
+                                  names=small,
+                                  filename='small',
+                                  Header=SmallHeader,
+                                  FirstLines=SmallFirstLines,
+                                  xv=smallxv,
+                                  s=smalls)
 
     @staticmethod
     def Good2Small(whichdir,whichtime,n):
@@ -548,22 +551,24 @@ class MercModule:
                   'There are only '+str(ngood)+' good objects to use.')
             n=ngood
         ### New objects will be a random subset of the good list
-        GoodInd=sample(list(range(ngood)),n)
+        GoodInd=sample(
+            list(range(ngood)),n
+        )
         ### Create and fill vectors with the data from good.in
         header, pos, vel, s = [],[],[],[]
-        for j in list(range(ngood)):
-            header.append(goodin.readline() )		# not used
-            pos.append(goodin.readline().split() )
-            vel.append(goodin.readline().split() )
-            s.append(goodin.readline() )
+        for _ in range(ngood):
+            header.append(goodin.readline())		# not used
+            pos.append(goodin.readline().split())
+            vel.append(goodin.readline().split())
+            s.append(goodin.readline())
 
         ### Generate new, sequential names for the objects
-        name=['M'+str(i) for i in list(range(n))]
-        smallxv=['' for i in list(range(n))]
-        smalls =['' for i in list(range(n))]
+        name=['M'+str(i) for i in range(n)]
+        smallxv=[''] * len(n)
+        smalls =[''] * len(n)
 
         ### Fill data of object j in new list with ind[j] from old list
-        for j in list(range(n)):
+        for j in range(n):
             smallxv[j]=pos[GoodInd[j]]+vel[GoodInd[j]]
             smalls[j] =s[GoodInd[j]]
 
@@ -571,14 +576,14 @@ class MercModule:
         SmallFirstData = MercModule.FILE_CONTENTS_PLANET_FIRST_LINES
 
         SmallFirstData=[SmallFirstData[i].split()
-                        for i in list(range(len(SmallFirstData)))]
+                        for i in range(len(SmallFirstData))]
         SmallFirstData=numpy.array(SmallFirstData)
         d=str(SmallFirstData[SmallFirstData[:,0]=='Plantsml',1][0])
         m=str(SmallFirstData[SmallFirstData[:,0]=='Plantsml',2][0])
 
         ### Format data as the first line of each big.in object entry
         SmallFirstLines=[name[i].ljust(10)+'d= '+d+'  m= '+m+'  r= 0.001\n'
-                         for i in list(range(len(name)))]
+                         for i in range(len(name))]
 
         ### Read generic big.in file header
         SmallHeader = MercModule.FILE_CONTENTS_SMALL_HEADER
