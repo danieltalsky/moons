@@ -6658,7 +6658,7 @@ c
       implicit none
 c
 c Input/Output
-      integer len,nsub,delimit(2,100)
+      integer len,nsub,delimit(2,10)
       character*1 string(len)
 c
 c Local
