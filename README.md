@@ -17,3 +17,10 @@ Then, at the project root, simply bring up the docker container:
 ```bash
 docker compose up
 ```
+
+#### Fortran execution profile
+
+Running the script with time=3 with a profiler compiled in and using
+graphviz to visualize the call graph produced the following diagram.
+
+![Fortran call graph](./graphviz-profiler-image.png)
