@@ -1,6 +1,6 @@
 #!/bin/sh
 
-RUN_DIRECTORY="BDir2"
+RUN_DIRECTORY="NewSim1"
 # Chloe does it differently so let's just use something else
 SIMULATED_MACHINE="basil"
 
@@ -19,7 +19,7 @@ niter=1       # = number of iterations to run
 vers='mercury_TidesGas.for'
 user='no'     # use user-defined forces?
 
-nobj=6000     # number of ejected fragments
+nobj=10     # number of ejected fragments
 pl='J'        # planet to aim for
 
 ### Write files.in
@@ -43,7 +43,8 @@ for j in $itrange; do
     # using only the mode previously called "gen"
     # which generates the files from scratch every time
     uv run python -c 'from merc_module.mercmodule import MercModule; MercModule.MakeBigRand("'$RUN_DIRECTORY'","'$j'")'
-    uv run python -c 'from merc_module.mercmodule import MercModule; MercModule.MakeSmall("'$RUN_DIRECTORY'","'$j'",'$nobj',"'$pl'",1.0e12,1.0e2)'
+    # uv run python -c 'from merc_module.mercmodule import MercModule; MercModule.MakeSmall("'$RUN_DIRECTORY'","'$j'",'$nobj',"'$pl'",1.0e12,1.0e2)'
+    uv run python -c 'from merc_module.mercmodule import MercModule; MercModule.MakeSmallEjecta("'$RUN_DIRECTORY'","'$j'",'$nobj')'
 
     # Write param.in file
     ./writeparam.sh $RUN_DIRECTORY $time $output $step $time $user

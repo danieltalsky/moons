@@ -3,6 +3,14 @@ import os
 from random import random, sample
 from math import sqrt, pi, sin, cos
 
+
+### Constants
+G = 6.674e-8       # cm^3/g/s^2
+mSun = 1.99e33     # g
+AU = 1.496e13      # cm/AU
+day = 24. * 3600.  # s/day
+
+
 class MercModule:
 
     FILE_CONTENTS_PLANET_FIRST_LINES = [
@@ -205,11 +213,6 @@ class MercModule:
         print('MakeMoon ' + whichdir + '/In/big.in  ' + whichtime)
 
         # constants/variables
-        G = 6.674e-8  # cm^3/g/s^2
-        mSun = 1.99e33  # g
-        AU = 1.496e13  # cm/AU
-        day = 24. * 3600.  # s/day
-
         big = ['Mercury', 'Venus', 'Earth', 'Mars', 'Jupiter', 'Moon', 'Saturn', 'Uranus', 'Neptune']
         bigxv = [''] * len(big)
 
@@ -321,9 +324,6 @@ class MercModule:
         print('BakeBigChoose ' + whichdir + '/In/big.in  ' + whichtime)
 
         # constants/variables
-        AU = 1.496e13  # cm/AU
-        day = 24. * 3600.  # s/day
-
         big = ['Mercury', 'Venus', 'Earth', 'Mars', 'Jupiter', 'Io', 'Europa', 'Ganymede', 'Callisto',
                'Saturn', 'Enceladu', 'Rhea', 'Titan', 'Iapetus', 'Uranus', 'Neptune']
         bigxv = [''] * len(big)
@@ -385,9 +385,6 @@ class MercModule:
         print('MakeBigRand '+whichdir+'/In/big.in  '+whichtime)
 
         #constants/variables
-        AU = 1.496e13					#cm/AU
-        day = 24.*3600.					#s/day
-
         #	big=['Mercury','Venus','Earth','Mars','Jupiter',
         #	'Io','Europa','Ganymede','Callisto','Saturn','Uranus','Neptune']
         big = ['Mercury','Venus','Earth','Mars', 		'Jupiter','Io','Europa','Ganymede','Callisto',
@@ -454,8 +451,6 @@ class MercModule:
         print('MakeSmall '+whichdir+'/In/small.in  '+whichtime+'  '+str(n))
 
         ### Constants/variables
-        AU = 1.496e13					#cm/AU
-        day = 24.*3600.					#s/day
         maxaspread=da/AU				#in AU
         maxvspread=dv*day/AU			#in AU/day
 
@@ -537,10 +532,6 @@ class MercModule:
         here=os.getcwd()
         print('Good2Small '+whichdir+'/good.in  '+whichtime)
 
-        #constants/variables
-        AU = 1.496e13					#cm/AU
-        day = 24.*3600.					#s/day
-
         ### Read in objects from good.in file
         #	goodin=open(whichdir+'/good.in','r')
         #	GoodLen=MercModule.FileLength(whichdir+'/good.in')
@@ -587,6 +578,127 @@ class MercModule:
 
         ### Format data as the first line of each big.in object entry
         SmallFirstLines=[name[i].ljust(10)+'d= '+d+'  m= '+m+'  r= 0.001\n'
+                         for i in range(len(name))]
+
+        ### Read generic big.in file header
+        SmallHeader = MercModule.FILE_CONTENTS_SMALL_HEADER
+
+        ### Write data
+        MercModule.WriteObjInFile(here,whichdir,name,'small',
+                                  SmallHeader,SmallFirstLines,smallxv,smalls)
+
+
+    @staticmethod
+    def MakeSmallEjecta(
+        whichdir,
+        whichtime,
+        n=1500,
+        whichpl="Earth",
+        fmin = 3.,
+        fmax = 8.6978026,
+
+    ):
+        """ Construct and save a small.in file with n objects ejected from around the specified planet"""
+        here=os.getcwd()
+        print('MakeSmallEjecta '+whichdir+'/small.in  '+whichtime)
+
+        ### Center on which planet?
+        ### Need to replace this with a lookup that matches it to the actual planet positions
+        if whichpl == "Earth":
+            planetpos=[-0.64038241724971778,  0.74932068450243261,  -0.00002987232135911]
+            planetvel=[-.0133604683532749652,  -.0112341286286691804,  -.0000006913199870459]
+            Mplanet = 5.9742e27  # g
+            Rplanet = 6.3781e8  # cm
+        elif whichpl == "Mars":
+            planetpos=[-0.61007197090038479,  -1.38101543944478533,  -0.01396205737636971]
+            planetvel=[0.0133404091620664932,  -.0044518086254676410,  -.0004212381501163891]
+            Mplanet = 6.4185e26  #g
+            Rplanet = 3.3862e8  # cm
+        else:
+            raise ValueError(f"Invalid starting planet: '{whichpl}'")
+        ### system parameters
+        Mtot = 1.0e-8*Mplanet/mSun  # standard mass lost in collision
+        m = Mtot/n  # mass per meteoroid
+
+        Rhill=1.*(Mplanet/mSun)**(1./3.)  # in AU
+        vesc=sqrt(2*G*Mplanet/(1.1*Rhill*AU + Rplanet))*day/AU  # in AU/day
+
+        ### Star planetesimal file
+        # filename = 'small.in'
+        # openw,1,filename
+        ### write
+        
+
+        # r=dblarr(n)
+        # x=dblarr(n)
+        # y=dblarr(n)
+        # z=dblarr(n)
+        # f=dblarr(n)
+        # u=dblarr(n)
+        # u=dblarr(n)
+        # v=dblarr(n)
+        # w=dblarr(n)
+        # theta=dblarr(n)
+        # phi=dblarr(n)
+
+        # ### Assign random values for theta and phi
+        # for j in range(n):
+        #     theta[j] = randomu(seed)*360.
+        #     phi[j] = randomu(seed)*180.
+        theta = numpy.random.rand(n) * 360.
+        phi = numpy.random.rand(n) * 180.
+
+        x = 1.1 * Rhill * numpy.cos(theta) * numpy.cos(phi)
+        y = 1.1 * Rhill * numpy.sin(theta) * numpy.cos(phi)
+        z = 1.1 * Rhill * numpy.sin(phi)
+
+        pos = [[str(x[i] + planetpos[0]),
+                str(y[i] + planetpos[1]),
+                str(z[i] + planetpos[2])] for i in range(n)]
+        
+        # ### Calculate position and velocity vectors from these angles
+        #     x[j]=1.1*Rhill*cos(theta[j])*cos(phi[j])
+        #     y[j]=1.1*Rhill*sin(theta[j])*cos(phi[j])
+        #     z[j]=1.1*Rhill*sin(phi[j])
+        #     pos=[x[j]+planetpos[0],y[j]+planetpos[1],z[j]+planetpos[2]]
+
+        #     r[j]=sqrt(x[j]^2.+y[j]^2.+z[j]^2.)
+        r = numpy.sqrt(x**2 + y**2 + z**2)
+
+        #     f[j]=fmin+randomu(seed)*(fmax-fmin)		;fraction of escape vel particle is ejected with
+        #     u[j]=f[j]*vesc*cos(theta[j])*cos(phi[j])
+        #     v[j]=f[j]*vesc*sin(theta[j])*cos(phi[j])
+        #     w[j]=f[j]*vesc*sin(phi[j])
+        #     vel=[u[j]+planetvel[0],v[j]+planetvel[1],w[j]+planetvel[2]]
+        f = fmin + random()*(fmax - fmin)
+        u = f * vesc * numpy.cos(theta)*numpy.cos(phi)
+        v = f * vesc * numpy.sin(theta)*numpy.cos(phi)
+        w = f * vesc * numpy.sin(phi)
+        vel = [[str(u[i] + planetvel[0]),
+                str(v[i] + planetvel[1]),
+                str(w[i] + planetvel[2])] for i in range(n)]
+
+        #     ### Write to file
+        #     name = 'M'+strtrim(j,2)
+            
+        #     printf,1,name,'  m=',strtrim(m,2),'  r=0.001 d=2.0'
+        #     printf,1,strtrim(pos[0],2),' ',strtrim(pos[1],2),' ',strtrim(pos[2],2)
+        #     printf,1,strtrim(vel[0],2),' ',strtrim(vel[1],2),' ',strtrim(vel[2],2)
+        #     printf,1,'0.0 0.0 0.0'
+
+        n_digits = len(str(n-1))
+        name=[('M{:0>'+str(n_digits)+'}').format(str(i)) for i in range(n)]
+        smallxv=[pos[i] + vel[i] for i in range(n)]
+        # smalls =[''] * len(n)
+        smalls=["  0.0  0.0  0.0\n"] * n
+
+        ### Fill data of object j in new list with ind[j] from old list
+        # for j in range(n):
+            # smallxv[j]=pos[GoodInd[j]]+vel[GoodInd[j]]
+            # smalls[j] =s[GoodInd[j]]
+
+        ### Format data as the first line of each big.in object entry
+        SmallFirstLines=[f'{name[i]}  m={m}  r=0.001 d=2.0\n'
                          for i in range(len(name))]
 
         ### Read generic big.in file header
