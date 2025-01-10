@@ -596,13 +596,12 @@ class MercModule:
         whichpl="Earth",
         fmin = 3.,
         fmax = 8.6978026,
-
     ):
         """ Construct and save a small.in file with n objects ejected from around the specified planet"""
         here=os.getcwd()
         print('MakeSmallEjecta '+whichdir+'/small.in  '+whichtime)
 
-        ### Center on which planet?
+        ### Get physical parameters for the central planet
         ### Need to replace this with a lookup that matches it to the actual planet positions
         if whichpl == "Earth":
             planetpos=[-0.64038241724971778,  0.74932068450243261,  -0.00002987232135911]
@@ -623,54 +622,22 @@ class MercModule:
         Rhill=1.*(Mplanet/mSun)**(1./3.)  # in AU
         vesc=sqrt(2*G*Mplanet/(1.1*Rhill*AU + Rplanet))*day/AU  # in AU/day
 
-        ### Star planetesimal file
-        # filename = 'small.in'
-        # openw,1,filename
-        ### write
-        
-
-        # r=dblarr(n)
-        # x=dblarr(n)
-        # y=dblarr(n)
-        # z=dblarr(n)
-        # f=dblarr(n)
-        # u=dblarr(n)
-        # u=dblarr(n)
-        # v=dblarr(n)
-        # w=dblarr(n)
-        # theta=dblarr(n)
-        # phi=dblarr(n)
-
-        # ### Assign random values for theta and phi
-        # for j in range(n):
-        #     theta[j] = randomu(seed)*360.
-        #     phi[j] = randomu(seed)*180.
+        ### Assign random values for theta and phi
         theta = numpy.random.rand(n) * 360.
         phi = numpy.random.rand(n) * 180.
 
+        ### Calculate position vectors from these angles
         x = 1.1 * Rhill * numpy.cos(theta) * numpy.cos(phi)
         y = 1.1 * Rhill * numpy.sin(theta) * numpy.cos(phi)
         z = 1.1 * Rhill * numpy.sin(phi)
-
         pos = [[str(x[i] + planetpos[0]),
                 str(y[i] + planetpos[1]),
                 str(z[i] + planetpos[2])] for i in range(n)]
-        
-        # ### Calculate position and velocity vectors from these angles
-        #     x[j]=1.1*Rhill*cos(theta[j])*cos(phi[j])
-        #     y[j]=1.1*Rhill*sin(theta[j])*cos(phi[j])
-        #     z[j]=1.1*Rhill*sin(phi[j])
-        #     pos=[x[j]+planetpos[0],y[j]+planetpos[1],z[j]+planetpos[2]]
-
-        #     r[j]=sqrt(x[j]^2.+y[j]^2.+z[j]^2.)
         r = numpy.sqrt(x**2 + y**2 + z**2)
 
-        #     f[j]=fmin+randomu(seed)*(fmax-fmin)		;fraction of escape vel particle is ejected with
-        #     u[j]=f[j]*vesc*cos(theta[j])*cos(phi[j])
-        #     v[j]=f[j]*vesc*sin(theta[j])*cos(phi[j])
-        #     w[j]=f[j]*vesc*sin(phi[j])
-        #     vel=[u[j]+planetvel[0],v[j]+planetvel[1],w[j]+planetvel[2]]
+        ### Fraction of escape velocity for each ejected rock, randomized within specified range
         f = fmin + random()*(fmax - fmin)
+        ### Calculate velocity vectors
         u = f * vesc * numpy.cos(theta)*numpy.cos(phi)
         v = f * vesc * numpy.sin(theta)*numpy.cos(phi)
         w = f * vesc * numpy.sin(phi)
@@ -678,24 +645,14 @@ class MercModule:
                 str(v[i] + planetvel[1]),
                 str(w[i] + planetvel[2])] for i in range(n)]
 
-        #     ### Write to file
-        #     name = 'M'+strtrim(j,2)
-            
-        #     printf,1,name,'  m=',strtrim(m,2),'  r=0.001 d=2.0'
-        #     printf,1,strtrim(pos[0],2),' ',strtrim(pos[1],2),' ',strtrim(pos[2],2)
-        #     printf,1,strtrim(vel[0],2),' ',strtrim(vel[1],2),' ',strtrim(vel[2],2)
-        #     printf,1,'0.0 0.0 0.0'
-
+        ### Name the objects numerically
         n_digits = len(str(n-1))
         name=[('M{:0>'+str(n_digits)+'}').format(str(i)) for i in range(n)]
-        smallxv=[pos[i] + vel[i] for i in range(n)]
-        # smalls =[''] * len(n)
-        smalls=["  0.0  0.0  0.0\n"] * n
 
-        ### Fill data of object j in new list with ind[j] from old list
-        # for j in range(n):
-            # smallxv[j]=pos[GoodInd[j]]+vel[GoodInd[j]]
-            # smalls[j] =s[GoodInd[j]]
+        ### Assemble position and velocity vectors into needed shape
+        smallxv=[pos[i] + vel[i] for i in range(n)]
+        ### no spin
+        smalls=["  0.0  0.0  0.0\n"] * n
 
         ### Format data as the first line of each big.in object entry
         SmallFirstLines=[f'{name[i]}  m={m}  r=0.001 d=2.0\n'
@@ -706,4 +663,4 @@ class MercModule:
 
         ### Write data
         MercModule.WriteObjInFile(here,whichdir,name,'small',
-                                  SmallHeader,SmallFirstLines,smallxv,smalls)
+                                  SmallHeader,SmallFirstLines,smallxv,smalls) 
