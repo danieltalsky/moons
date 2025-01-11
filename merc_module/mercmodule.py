@@ -311,7 +311,12 @@ class MercModule:
         timestepfile.close()
 
     @staticmethod
-    def MakeBigChoose(whichdir, whichtime):
+    def MakeBigChoose(
+        whichdir, 
+        whichtime,
+        big = ['Mercury', 'Venus', 'Earth', 'Mars', 'Jupiter', 'Io', 'Europa', 'Ganymede', 'Callisto',
+               'Saturn', 'Enceladu', 'Rhea', 'Titan', 'Iapetus', 'Uranus', 'Neptune']
+):
         """
         Select a timestep for the big objects and make a new big.in
         """
@@ -321,11 +326,10 @@ class MercModule:
 
         here = os.getcwd()
 
-        print('BakeBigChoose ' + whichdir + '/In/big.in  ' + whichtime)
+        print('MakeBigChoose ' + whichdir + '/In/big.in  ' + whichtime)
+        print(f"    {len(big)} big objects: {big}")
 
         # constants/variables
-        big = ['Mercury', 'Venus', 'Earth', 'Mars', 'Jupiter', 'Io', 'Europa', 'Ganymede', 'Callisto',
-               'Saturn', 'Enceladu', 'Rhea', 'Titan', 'Iapetus', 'Uranus', 'Neptune']
         bigxv = [''] * len(big)
 
         # Use chosen timestep
@@ -373,7 +377,13 @@ class MercModule:
         timestepfile.close()
 
     @staticmethod
-    def MakeBigRand(whichdir, whichtime):
+    def MakeBigRand(
+            whichdir, 
+            whichtime,
+            big=['Mercury','Venus','Earth','Mars','Jupiter','Io','Europa','Ganymede','Callisto',
+             'Saturn','Enceladu','Rhea','Titan','Iapetus','Uranus','Neptune'],
+            seed=None,
+        ):
         """
         Pick a random timestep for the big objects and make a new big.in
         """
@@ -387,13 +397,15 @@ class MercModule:
         #constants/variables
         #	big=['Mercury','Venus','Earth','Mars','Jupiter',
         #	'Io','Europa','Ganymede','Callisto','Saturn','Uranus','Neptune']
-        big = ['Mercury','Venus','Earth','Mars', 		'Jupiter','Io','Europa','Ganymede','Callisto',
-             'Saturn','Enceladu','Rhea','Titan','Iapetus','Uranus','Neptune']
         bigxv = [''] * len(big)
 
-        ### Pick a random timestep and get all big vectors at that point
+        ### Pick a timestep and get all big vectors at that point
         AEILen=MercModule.FileLength(here+'/'+whichdir+'/In/InitElemFiles/Jupiter.aei')-5
-        timestep=5+int(AEILen*random())
+        if seed:
+            timestep = 5 + seed
+            assert seed <= AEILen - 5, f"Seed value '{seed}' exceeds maximum allowed value {AEILen-5}"
+        else:
+            timestep=5+int(AEILen*random())
 
         # Find the correct timestep for each big thing
         for i in range(len(big)):
@@ -599,22 +611,31 @@ class MercModule:
     ):
         """ Construct and save a small.in file with n objects ejected from around the specified planet"""
         here=os.getcwd()
-        print('MakeSmallEjecta '+whichdir+'/small.in  '+whichtime)
+        print('MakeSmallEjecta ' + whichdir + '/small.in  ' + whichtime)
 
         ### Get physical parameters for the central planet
-        ### Need to replace this with a lookup that matches it to the actual planet positions
-        if whichpl == "Earth":
-            planetpos=[-0.64038241724971778,  0.74932068450243261,  -0.00002987232135911]
-            planetvel=[-.0133604683532749652,  -.0112341286286691804,  -.0000006913199870459]
-            Mplanet = 5.9742e27  # g
-            Rplanet = 6.3781e8  # cm
-        elif whichpl == "Mars":
-            planetpos=[-0.61007197090038479,  -1.38101543944478533,  -0.01396205737636971]
-            planetvel=[0.0133404091620664932,  -.0044518086254676410,  -.0004212381501163891]
-            Mplanet = 6.4185e26  #g
-            Rplanet = 3.3862e8  # cm
-        else:
-            raise ValueError(f"Invalid starting planet: '{whichpl}'")
+        ### Look up fron big.in (need to generate that first!)
+        big_fname = here + '/' + whichdir + '/In/big.in'
+        pl_info = []
+        with open(big_fname, "r") as file:
+            for line in file:
+                if whichpl.lower() in line.lower():
+                    pl_info.append(line)
+                    for i in range(4):
+                        pl_info.append(file.readline())
+                    break
+
+        ### Get the mass and density from the first line of the planet's input
+        planet_first_line = [x for x in pl_info[0].split('  ')]
+        Mplanet = float([x.strip() for x in planet_first_line if ("m=" in x)][0].replace("m=", "")) * mSun
+        Dplanet = float([x.strip() for x in planet_first_line if ("d=" in x)][0].replace("d=", ""))
+        ### Compute the radius using volume of a sphere
+        Rplanet = ((3/(4*pi))*(Mplanet/Dplanet))**(1/3)
+
+        ### Get position and velocity vectors from the next lines
+        planetpos = [float(x) for x in pl_info[1].split()]
+        planetvel = [float(x) for x in pl_info[2].split()]
+
         ### system parameters
         Mtot = 1.0e-8*Mplanet/mSun  # standard mass lost in collision
         m = Mtot/n  # mass per meteoroid
@@ -626,41 +647,40 @@ class MercModule:
         theta = numpy.random.rand(n) * 360.
         phi = numpy.random.rand(n) * 180.
 
-        ### Calculate position vectors from these angles
+        ### Calculate position vectors based on these angles
         x = 1.1 * Rhill * numpy.cos(theta) * numpy.cos(phi)
         y = 1.1 * Rhill * numpy.sin(theta) * numpy.cos(phi)
         z = 1.1 * Rhill * numpy.sin(phi)
         pos = [[str(x[i] + planetpos[0]),
                 str(y[i] + planetpos[1]),
                 str(z[i] + planetpos[2])] for i in range(n)]
-        r = numpy.sqrt(x**2 + y**2 + z**2)
 
         ### Fraction of escape velocity for each ejected rock, randomized within specified range
-        f = fmin + random()*(fmax - fmin)
+        frac = fmin + random()*(fmax - fmin)
         ### Calculate velocity vectors
-        u = f * vesc * numpy.cos(theta)*numpy.cos(phi)
-        v = f * vesc * numpy.sin(theta)*numpy.cos(phi)
-        w = f * vesc * numpy.sin(phi)
+        u = frac * vesc * numpy.cos(theta) * numpy.cos(phi)
+        v = frac * vesc * numpy.sin(theta) * numpy.cos(phi)
+        w = frac * vesc * numpy.sin(phi)
         vel = [[str(u[i] + planetvel[0]),
                 str(v[i] + planetvel[1]),
                 str(w[i] + planetvel[2])] for i in range(n)]
 
         ### Name the objects numerically
         n_digits = len(str(n-1))
-        name=[('M{:0>'+str(n_digits)+'}').format(str(i)) for i in range(n)]
+        name = [('M{:0>'+str(n_digits)+'}').format(str(i)) for i in range(n)]
 
         ### Assemble position and velocity vectors into needed shape
-        smallxv=[pos[i] + vel[i] for i in range(n)]
+        small_xv = [pos[i] + vel[i] for i in range(n)]
         ### no spin
-        smalls=["  0.0  0.0  0.0\n"] * n
+        small_s = ["  0.0  0.0  0.0\n"] * n
 
         ### Format data as the first line of each big.in object entry
-        SmallFirstLines=[f'{name[i]}  m={m}  r=0.001 d=2.0\n'
-                         for i in range(len(name))]
+        SmallFirstLines = [f'{name[i]}  m={m}  r=0.001 d=2.0\n'
+                           for i in range(len(name))]
 
         ### Read generic big.in file header
         SmallHeader = MercModule.FILE_CONTENTS_SMALL_HEADER
 
         ### Write data
-        MercModule.WriteObjInFile(here,whichdir,name,'small',
-                                  SmallHeader,SmallFirstLines,smallxv,smalls) 
+        MercModule.WriteObjInFile(here, whichdir, name, 'small',
+                                  SmallHeader, SmallFirstLines, small_xv, small_s) 
