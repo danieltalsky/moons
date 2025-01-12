@@ -20,7 +20,7 @@ docker compose up
 
 ## Run log
 
-## 100 years, 6000 particles
+## First experiments: time 3, 6000 particles
 
 At 1 CPU and 1GB of memory, ~99% CPU utilization, ~5% memory utilization
 8m 15s
@@ -37,18 +37,43 @@ On an amazon EC2 instance
 At 3 CPU's and 8GB of memory, compiled without legacy flag
 8m 8s
 
+## Second experiments: time 2, 50 particles
+
+```
+RAN on 48 cores, 30 processes, 3 time setting, 30 objects
+TOTAL SECONDS: 240
+TOTAL FORTRAN SECONDS: 224
+
+RAN on 48 cores, 35 processes, 3 time setting, 30 objects
+TOTAL SECONDS: 242
+TOTAL FORTRAN SECONDS: 224
+
+RAN on 48 cores, 38 processes, 3 time setting, 30 objects
+TOTAL SECONDS: 266
+TOTAL FORTRAN SECONDS: 248
+
+RAN on 48 cores, 39 processes, 3 time setting, 30 objects
+TOTAL SECONDS: 289
+TOTAL FORTRAN SECONDS: 270
+
+RAN on 48 cores, 40 processes, 3 time setting, 30 objects
+TOTAL SECONDS: 498
+TOTAL FORTRAN SECONDS: 479
+```
 
 ## Setting up an AWS EC2 instance
 - Launch in the console
 - Login with `ssh -i 'C:\Users\Daniel Talsky\.ssh\RDSRP.pem' ec2-user@<ip-address>`
-- ```commandline
+
+```shell
+
 sudo yum update -y
 sudo yum install docker git -y
+sudo service docker start
 sudo usermod -a -G docker ec2-user
-id ec2-user
-newgrp docker
-sudo yum install python3-pip -y
-sudo pip3 install docker-compose
+
+sudo curl -L https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m) -o /usr/local/bin/docker-compose
+sudo chmod +x /usr/local/bin/docker-compose
 sudo systemctl enable docker.service
 sudo systemctl start docker.service
 
@@ -57,5 +82,4 @@ cd Moons
 git checkout performance-benchmark-settings
 
 sudo docker-compose up -d
-
 ```
