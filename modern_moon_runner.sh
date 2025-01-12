@@ -1,8 +1,15 @@
 #!/bin/sh
 
-RUN_DIRECTORY="NewSim1"
+RUN_DIRECTORY="ScalingTestSim1"
 # Chloe does it differently so let's just use something else
 SIMULATED_MACHINE="basil"
+
+###############################################################################
+### Check if directory exists and if not, create it
+if [ ! -d "$RUN_DIRECTORY" ]; then
+  echo "$RUN_DIRECTORY does not exist. Copying BlankDir to $RUN_DIRECTORY"
+  cp -rp BlankDir $RUN_DIRECTORY
+fi
 
 ###############################################################################
 ### Script to repeatedly run moon-planet collision ratio simulations
@@ -62,4 +69,4 @@ done    # j iterations
 
 # Write stop time for this directory:
 t2=$(date +%s)
-echo ""$RUN_DIRECTORY"    "$machine"    "$niter"    "$nobj"    "$user"    "$(echo "$t2 - $t1"|bc ) >> runtime.txt
+echo ""$RUN_DIRECTORY",  "$machine",  "$time",  "$niter",  "$nobj",  "$user",  "$(echo "$t2 - $t1"|bc ) >> runtime.csv
