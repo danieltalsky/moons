@@ -2,6 +2,10 @@ import numpy
 import os
 from random import random, sample
 from math import sqrt, pi, sin, cos
+import re
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sb
 
 
 ### Constants
@@ -684,3 +688,37 @@ class MercModule:
         ### Write data
         MercModule.WriteObjInFile(here, whichdir, name, 'small',
                                   SmallHeader, SmallFirstLines, small_xv, small_s) 
+
+
+    @staticmethod
+    def PlotAllObjects(
+        sim_out_dir,
+        plot_file="coords.png",
+    ):
+        sb.set_style("darkgrid")
+        pal = sb.color_palette()
+        # sim_out_dir = "../ScalingTestSim1/Out/AeiOutFiles/"
+        ### Read in coordinates from .aei files
+        aei_files = os.listdir(sim_out_dir)
+        obj_list = [s.split(".")[0] for s in aei_files]
+        ejecta_re = re.compile(r'^M\d+$')
+        ejecta_objs = sorted([s for s in obj_list if bool(ejecta_re.match(s))])
+        planet_objs = sorted([s for s in obj_list if s not in ejecta_objs])
+        print(f"{len(planet_objs)} planets found: {planet_objs}")
+        print(f"{len(ejecta_objs)} found: {ejecta_objs}")
+
+        coords = {}
+        for i, obj_file in enumerate(planet_objs + ejecta_objs):
+            obj = obj_file.split(".")[0]
+            header = list(pd.read_csv(sim_out_dir + obj + ".aei", header=1, sep=r'\s+', skiprows=1, nrows=1).columns)
+            header = header[0:1] + header[2:]
+            coords[obj] = pd.read_csv(sim_out_dir + obj + ".aei", sep=r'\s+', names=header, skiprows=4)
+
+        f1, ax1 = plt.subplots(1, figsize=[8, 8])
+        for i, obj in enumerate(ejecta_objs):
+            ax1.plot(coords[obj]["x"], coords[obj]["y"], c="gray")
+        for i, obj in enumerate(["Mercury", "Venus", "Earth", "Mars", "Jupiter"]):
+            ax1.plot(coords[obj]["x"], coords[obj]["y"], c=pal[i], label=obj)
+        ax1.plot([0], [0], c="yellow", marker="o", ms=10, zorder=3)
+        plt.tight_layout()
+        f1.savefig(plot_file)

@@ -18,8 +18,8 @@ t1=$(date +%s)
 machine=$SIMULATED_MACHINE
 
 ### Simulation parameters
-time=1        # = log(years)
-output=1      # = log(years)
+time=2        # = log(years)
+output=-2      # = log(years)
 step=0.5      # = days
 niter=1       # = number of iterations to run
 
@@ -57,13 +57,24 @@ for j in $itrange; do
     ./writeparam.sh $RUN_DIRECTORY $time $output $step $time $user
     # Compile mercury
     gfortran -std=legacy -w -o ${RUN_DIRECTORY}/Out/merc_${RUN_DIRECTORY} Files/$vers
+	gfortran -std=legacy -w -o ${RUN_DIRECTORY}/Out/elem Files/elem.for
 
-    #### Run mercury
-    cd $RUN_DIRECTORY/Out; ./merc_$RUN_DIRECTORY; cd ../..
+    #### Run mercury and element inside the specified directory
+    cd $RUN_DIRECTORY/Out
+    ./merc_$RUN_DIRECTORY
+    rm *.aei
+    ./elem
+    mkdir AeiOutFiles
+    \mv *.aei AeiOutFiles
+    cd ../..
 
     ### Write collisions summary, copy good in coords
     # using only the mode previously called "gen"
     uv run python -c 'from merc_module.mercmodule import MercModule; MercModule.CopyInfo("'$RUN_DIRECTORY'","'$j'",True)'
+
+    ### Visualize the trajectories
+    uv run python -c 'from merc_module.mercmodule import MercModule; MercModule.PlotAllObjects("'$RUN_DIRECTORY'/Out/AeiOutFiles/")'
+
 
 done    # j iterations
 
