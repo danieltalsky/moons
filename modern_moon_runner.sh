@@ -1,8 +1,7 @@
 #!/bin/sh
 
 RUN_DIRECTORY="ScalingTestSim1"
-# Chloe does it differently so let's just use something else
-SIMULATED_MACHINE="basil"
+machine=$(hostname -s)
 
 ###############################################################################
 ### Check if directory exists and if not, create it
@@ -12,22 +11,18 @@ if [ ! -d "$RUN_DIRECTORY" ]; then
 fi
 
 ###############################################################################
-### Script to repeatedly run moon-planet collision ratio simulations
-# Start time
+### Set up, run, and process ejecta launched from Earth
+### Start time
 t1=$(date +%s)
-machine=$SIMULATED_MACHINE
 
 ### Simulation parameters
-time=2        # = log(years)
-output=-2      # = log(years)
-step=0.5      # = days
-niter=1       # = number of iterations to run
+nobj=10       # number of ejected fragments
+time=2        # = simulation length in log(years) 
+output=-1      # = data output frequency in log(years)
+step=1        # = timestep in days
 
 vers='mercury_TidesGas.for'
 user='no'     # use user-defined forces?
-
-nobj=10     # number of ejected fragments
-pl='J'        # planet to aim for
 
 ### Write files.in
 ./writefiles.sh $RUN_DIRECTORY
@@ -40,44 +35,44 @@ else
     itrange=$(seq 1 $niter)    # go from x to y
 fi
 
-### Do iterations
-for j in $itrange; do
-    echo 'Iteration #' $j ' in '$RUN_DIRECTORY
-    \rm $RUN_DIRECTORY/Out/*.dmp
-    \rm $RUN_DIRECTORY/Out/*.out
+echo 'Running in '$RUN_DIRECTORY
+\rm $RUN_DIRECTORY/Out/*.dmp
+\rm $RUN_DIRECTORY/Out/*.out
 
-    #### Randomize moon phases and rock positions
-    # using only the mode previously called "gen"
-    # which generates the files from scratch every time
-    uv run python -c 'from merc_module.mercmodule import MercModule; MercModule.MakeBigRand("'$RUN_DIRECTORY'","'$j'",big=["Mercury","Venus","Earth","Mars","Jupiter","Saturn","Uranus","Neptune"],seed=0)'
-    # uv run python -c 'from merc_module.mercmodule import MercModule; MercModule.MakeSmall("'$RUN_DIRECTORY'","'$j'",'$nobj',"'$pl'",1.0e12,1.0e2)'
-    uv run python -c 'from merc_module.mercmodule import MercModule; MercModule.MakeSmallEjecta("'$RUN_DIRECTORY'","'$j'",'$nobj')'
+### Create big.in and small.in object lists, with specific big object positiosn and randomized radial ejecta
+uv run python -c 'from merc_module.mercmodule import MercModule; MercModule.MakeBigRand("'$RUN_DIRECTORY'","'$j'",big=["Mercury","Venus","Earth","Mars","Jupiter","Saturn","Uranus","Neptune"],seed=0)'
+uv run python -c 'from merc_module.mercmodule import MercModule; MercModule.MakeSmallEjecta("'$RUN_DIRECTORY'","'$j'",'$nobj')'
 
-    # Write param.in file
-    ./writeparam.sh $RUN_DIRECTORY $time $output $step $time $user
-    # Compile mercury
-    gfortran -std=legacy -w -o ${RUN_DIRECTORY}/Out/merc_${RUN_DIRECTORY} Files/$vers
-	gfortran -std=legacy -w -o ${RUN_DIRECTORY}/Out/elem Files/elem.for
+### Write param.in file
+./writeparam.sh $RUN_DIRECTORY $time $output $step $time $user
+### Compile mercury and element fortran code
+gfortran -std=legacy -w -o ${RUN_DIRECTORY}/Out/merc_${RUN_DIRECTORY} Files/$vers
+gfortran -std=legacy -w -o ${RUN_DIRECTORY}/Out/elem Files/elem.for
 
-    #### Run mercury and element inside the specified directory
-    cd $RUN_DIRECTORY/Out
-    ./merc_$RUN_DIRECTORY
-    rm *.aei
-    ./elem
-    mkdir AeiOutFiles
-    \mv *.aei AeiOutFiles
-    cd ../..
-
-    ### Write collisions summary, copy good in coords
-    # using only the mode previously called "gen"
-    uv run python -c 'from merc_module.mercmodule import MercModule; MercModule.CopyInfo("'$RUN_DIRECTORY'","'$j'",True)'
-
-    ### Visualize the trajectories
-    uv run python -c 'from merc_module.mercmodule import MercModule; MercModule.PlotAllObjects("'$RUN_DIRECTORY'/Out/AeiOutFiles/")'
-
-
-done    # j iterations
-
-# Write stop time for this directory:
+### Run mercury inside the specified directory
 t2=$(date +%s)
-echo ""$RUN_DIRECTORY",  "$machine",  "$time",  "$niter",  "$nobj",  "$user",  "$(echo "$t2 - $t1"|bc ) >> runtime.csv
+cd $RUN_DIRECTORY/Out
+./merc_$RUN_DIRECTORY
+cd ../..
+
+### Write collisions summary, write Out/element.in with objects that collide somewhere we're tracking
+uv run python -c 'from merc_module.mercmodule import MercModule; MercModule.CopyInfo("'$RUN_DIRECTORY'","'$j'",False,True)'
+
+### Run element to get .aei files for planets and identified ejecta
+t3=$(date +%s)
+cd $RUN_DIRECTORY/Out
+rm *.aei
+rm -r AeiOutFiles
+./elem
+mkdir AeiOutFiles
+\mv *.aei AeiOutFiles
+cd ../..
+
+### Visualize the trajectories 
+t4=$(date +%s)
+uv run python -c 'from merc_module.mercmodule import MercModule; MercModule.PlotAllObjects("'$RUN_DIRECTORY'/Out/AeiOutFiles/")'
+
+### Track runtimes for this directory:
+t5=$(date +%s)
+echo ""$RUN_DIRECTORY",  "$machine",  "$user",  "$nobj",  "$time",  "$output",  "$step",  "$(echo "$t2 - $t1"|bc )",  "$(echo "$t3 - $t2"|bc )",  "$(echo "$t4 - $t3"|bc )",  "$(echo "$t5 - $t4"|bc ) >> runtime.csv
+# header = directory, machine, user, n_objects, log_sim_time, log_output_step, timestep, prep_time, merc_time, elem_time, plot_time

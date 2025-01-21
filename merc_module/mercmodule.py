@@ -54,6 +54,26 @@ class MercModule:
         ")---------------------------------------------------------------------\n"
     ]
 
+    FILE_CONTENTS_ELEMENT = [
+        ")O+_06 element  (WARNING: Do not delete this line!!)\n",
+        ") Lines beginning with `)' are ignored.\n",
+        ")---------------------------------------------------------------------\n",
+        "number of input files = 1\n",
+        ")---------------------------------------------------------------------\n",
+        ") List the input files, one per line\n",
+        "xv.out\n",
+        ")---------------------------------------------------------------------\n",
+        "type of elements (central body, barycentric, Jacobi) = Central\n",
+        "minimum interval between outputs (days) = 1.0\n",
+        "express time in days or years = days\n",
+        "express time relative to integration start time = yes\n",
+        ")---------------------------------------------------------------------\n",
+        ") Output format? (e.g. a8.4 => semi-major axis with 8 digits & 4 dec. places)\n",
+        "a11.3 e8.4 i8.4 m13e d4.2 x20.16 y20.16 z20.16 u20.18 v20.18 w20.18\n",
+        ")---------------------------------------------------------------------\n",
+        ") Which bodies do you want? (List one per line or leave blank for all bodies)\n",
+    ]
+
     @staticmethod
     def FileLength(filename: str) -> int:
         """
@@ -86,6 +106,23 @@ class MercModule:
                 infile.write("  " + xv[i][0] + "  " + xv[i][1] + "  " + xv[i][2] + "\n")
                 infile.write("  " + xv[i][3] + "  " + xv[i][4] + "  " + xv[i][5] + "\n")
                 infile.write(s[i])
+
+
+    @staticmethod
+    def WriteElementInFile(
+        whichdir: str,
+        objects: list,
+    ):
+        """
+        Write element.in file
+        """
+        with open(whichdir + '/Out/element.in', 'w') as infile:
+
+            # Header
+            infile.writelines(MercModule.FILE_CONTENTS_ELEMENT)
+            # Data
+            for i, obj in enumerate(objects):
+                infile.write(" "+obj+"\n")
 
     @staticmethod
     def ReadInfo(whichdir):
@@ -139,7 +176,7 @@ class MercModule:
         return name1, dest1, time1
 
     @staticmethod
-    def CopyInfo(whichdir, whichtime, writegood):
+    def CopyInfo(whichdir, whichtime, writegood, writeelem):
         """
         A program to read the collision info from info.out and add it to a running total
         """
@@ -182,26 +219,42 @@ class MercModule:
         )
         InfoSumFile.close()
 
+        ### Set up template for element.in file
+        if writeelem:
+            planets = ['Mercury', 'Venus', 'Earth', 'Mars', 'Jupiter', 'Moon', 'Saturn']
+            MercModule.WriteElementInFile(
+                    whichdir=whichdir,
+                    objects=planets,
+                )
+
         # Get .in data for rocks that hit something and write to file
-        if writegood:
+        if writegood or writeelem:
             gooddest = ['Jupiter', 'Io', 'Europa', 'Ganymede', 'Callisto', 'Moon', 'Saturn', 'Enceladu', 'Rhea', 'Titan', 'Iapetus']
             ind = numpy.array([
                 (any(dest1[i] == gooddest[j] for j, _ in enumerate(gooddest)))
                 for i, _ in enumerate(dest1)])
             if len(name1) > 0:
                 name = numpy.array(name1)[ind]
-                goodin = open(whichdir + '/good.in', 'a')
-                smallin = open(whichdir + '/In/small.in', 'r')
-                SmallLen = MercModule.FileLength(whichdir + '/In/small.in')
-                smalllines = ['' for i in range(SmallLen)]
-                for j in range(5):
-                    smalllines[j] = smallin.readline()
-                for j in range(5, SmallLen):
-                    smalllines[j] = smallin.readline()
-                    if any(name[i] == smalllines[k].split()[0] and float(time1[i]) > 60. for i, _ in enumerate(name) for k in range(j - 3, j + 1)):
-                        goodin.write(smalllines[j])
-                goodin.close()
-                smallin.close()
+                if writegood:
+                    goodin = open(whichdir + '/good.in', 'a')
+                    smallin = open(whichdir + '/In/small.in', 'r')
+                    SmallLen = MercModule.FileLength(whichdir + '/In/small.in')
+                    smalllines = ['' for i in range(SmallLen)]
+                    for j in range(5):
+                        smalllines[j] = smallin.readline()
+                    for j in range(5, SmallLen):
+                        smalllines[j] = smallin.readline()
+                        if any(name[i] == smalllines[k].split()[0] and float(time1[i]) > 60. 
+                                for i, _ in enumerate(name) for k in range(j - 3, j + 1)):
+                            goodin.write(smalllines[j])
+                    goodin.close()
+                    smallin.close()
+                if writeelem:
+                    elemin = open(whichdir + '/Out/element.in', 'a')
+                    for n in name:
+                        elemin.write(" " + n)
+                    elemin.close()
+
 
     @staticmethod
     def MakeMoon(whichdir, whichtime):
@@ -699,13 +752,13 @@ class MercModule:
         pal = sb.color_palette()
         # sim_out_dir = "../ScalingTestSim1/Out/AeiOutFiles/"
         ### Read in coordinates from .aei files
-        aei_files = os.listdir(sim_out_dir)
+        aei_files = [s for s in os.listdir(sim_out_dir) if s.endswith(".aei")]
         obj_list = [s.split(".")[0] for s in aei_files]
         ejecta_re = re.compile(r'^M\d+$')
         ejecta_objs = sorted([s for s in obj_list if bool(ejecta_re.match(s))])
         planet_objs = sorted([s for s in obj_list if s not in ejecta_objs])
         print(f"{len(planet_objs)} planets found: {planet_objs}")
-        print(f"{len(ejecta_objs)} found: {ejecta_objs}")
+        print(f"{len(ejecta_objs)} ejecta found: {ejecta_objs}")
 
         coords = {}
         for i, obj_file in enumerate(planet_objs + ejecta_objs):
@@ -721,4 +774,4 @@ class MercModule:
             ax1.plot(coords[obj]["x"], coords[obj]["y"], c=pal[i], label=obj)
         ax1.plot([0], [0], c="yellow", marker="o", ms=10, zorder=3)
         plt.tight_layout()
-        f1.savefig(plot_file)
+        f1.savefig(sim_out_dir + plot_file)
