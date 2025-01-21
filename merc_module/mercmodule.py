@@ -219,7 +219,7 @@ class MercModule:
         )
         InfoSumFile.close()
 
-        ### Set up template for element.in file
+        ### Set up template for element.in file with the planets included by default
         if writeelem:
             planets = ['Mercury', 'Venus', 'Earth', 'Mars', 'Jupiter', 'Moon', 'Saturn']
             MercModule.WriteElementInFile(

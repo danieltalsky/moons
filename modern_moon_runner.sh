@@ -1,6 +1,20 @@
 #!/bin/sh
 
-RUN_DIRECTORY="ScalingTestSim1"
+###############################################################################
+### Set up, run, and process ejecta launched from Earth
+### Start time
+t1=$(date +%s)
+
+### Simulation parameters
+nobj=1000      # number of ejected fragments
+time=3         # = simulation length in log(years) 
+output=-1      # = data output frequency in log(years)
+step=1         # = timestep in days
+
+vers='mercury_TidesGas.for'
+user='no'     # use user-defined forces?
+
+RUN_DIRECTORY="ScalingTest_obj"$nobj"_t"$time"_s"$output
 machine=$(hostname -s)
 
 ###############################################################################
@@ -9,20 +23,6 @@ if [ ! -d "$RUN_DIRECTORY" ]; then
   echo "$RUN_DIRECTORY does not exist. Copying BlankDir to $RUN_DIRECTORY"
   cp -rp BlankDir $RUN_DIRECTORY
 fi
-
-###############################################################################
-### Set up, run, and process ejecta launched from Earth
-### Start time
-t1=$(date +%s)
-
-### Simulation parameters
-nobj=10       # number of ejected fragments
-time=2        # = simulation length in log(years) 
-output=-1      # = data output frequency in log(years)
-step=1        # = timestep in days
-
-vers='mercury_TidesGas.for'
-user='no'     # use user-defined forces?
 
 ### Write files.in
 ./writefiles.sh $RUN_DIRECTORY
