@@ -2,6 +2,18 @@ import numpy
 import os
 from random import random, sample
 from math import sqrt, pi, sin, cos
+import re
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sb
+
+
+### Constants
+G = 6.674e-8       # cm^3/g/s^2
+mSun = 1.99e33     # g
+AU = 1.496e13      # cm/AU
+day = 24. * 3600.  # s/day
+
 
 class MercModule:
 
@@ -42,6 +54,26 @@ class MercModule:
         ")---------------------------------------------------------------------\n"
     ]
 
+    FILE_CONTENTS_ELEMENT = [
+        ")O+_06 element  (WARNING: Do not delete this line!!)\n",
+        ") Lines beginning with `)' are ignored.\n",
+        ")---------------------------------------------------------------------\n",
+        "number of input files = 1\n",
+        ")---------------------------------------------------------------------\n",
+        ") List the input files, one per line\n",
+        "xv.out\n",
+        ")---------------------------------------------------------------------\n",
+        "type of elements (central body, barycentric, Jacobi) = Central\n",
+        "minimum interval between outputs (days) = 1.0\n",
+        "express time in days or years = days\n",
+        "express time relative to integration start time = yes\n",
+        ")---------------------------------------------------------------------\n",
+        ") Output format? (e.g. a8.4 => semi-major axis with 8 digits & 4 dec. places)\n",
+        "a11.3 e8.4 i8.4 m13e d4.2 x20.16 y20.16 z20.16 u20.18 v20.18 w20.18\n",
+        ")---------------------------------------------------------------------\n",
+        ") Which bodies do you want? (List one per line or leave blank for all bodies)\n",
+    ]
+
     @staticmethod
     def FileLength(filename: str) -> int:
         """
@@ -74,6 +106,23 @@ class MercModule:
                 infile.write("  " + xv[i][0] + "  " + xv[i][1] + "  " + xv[i][2] + "\n")
                 infile.write("  " + xv[i][3] + "  " + xv[i][4] + "  " + xv[i][5] + "\n")
                 infile.write(s[i])
+
+
+    @staticmethod
+    def WriteElementInFile(
+        whichdir: str,
+        objects: list,
+    ):
+        """
+        Write element.in file
+        """
+        with open(whichdir + '/Out/element.in', 'w') as infile:
+
+            # Header
+            infile.writelines(MercModule.FILE_CONTENTS_ELEMENT)
+            # Data
+            for i, obj in enumerate(objects):
+                infile.write(" "+obj+"\n")
 
     @staticmethod
     def ReadInfo(whichdir):
@@ -127,7 +176,7 @@ class MercModule:
         return name1, dest1, time1
 
     @staticmethod
-    def CopyInfo(whichdir, whichtime, writegood):
+    def CopyInfo(whichdir, whichtime, writegood, writeelem):
         """
         A program to read the collision info from info.out and add it to a running total
         """
@@ -170,26 +219,42 @@ class MercModule:
         )
         InfoSumFile.close()
 
+        ### Set up template for element.in file with the planets included by default
+        if writeelem:
+            planets = ['Mercury', 'Venus', 'Earth', 'Mars', 'Jupiter', 'Moon', 'Saturn']
+            MercModule.WriteElementInFile(
+                    whichdir=whichdir,
+                    objects=planets,
+                )
+
         # Get .in data for rocks that hit something and write to file
-        if writegood:
+        if writegood or writeelem:
             gooddest = ['Jupiter', 'Io', 'Europa', 'Ganymede', 'Callisto', 'Moon', 'Saturn', 'Enceladu', 'Rhea', 'Titan', 'Iapetus']
             ind = numpy.array([
                 (any(dest1[i] == gooddest[j] for j, _ in enumerate(gooddest)))
                 for i, _ in enumerate(dest1)])
             if len(name1) > 0:
                 name = numpy.array(name1)[ind]
-                goodin = open(whichdir + '/good.in', 'a')
-                smallin = open(whichdir + '/In/small.in', 'r')
-                SmallLen = MercModule.FileLength(whichdir + '/In/small.in')
-                smalllines = ['' for i in range(SmallLen)]
-                for j in range(5):
-                    smalllines[j] = smallin.readline()
-                for j in range(5, SmallLen):
-                    smalllines[j] = smallin.readline()
-                    if any(name[i] == smalllines[k].split()[0] and float(time1[i]) > 60. for i, _ in enumerate(name) for k in range(j - 3, j + 1)):
-                        goodin.write(smalllines[j])
-                goodin.close()
-                smallin.close()
+                if writegood:
+                    goodin = open(whichdir + '/good.in', 'a')
+                    smallin = open(whichdir + '/In/small.in', 'r')
+                    SmallLen = MercModule.FileLength(whichdir + '/In/small.in')
+                    smalllines = ['' for i in range(SmallLen)]
+                    for j in range(5):
+                        smalllines[j] = smallin.readline()
+                    for j in range(5, SmallLen):
+                        smalllines[j] = smallin.readline()
+                        if any(name[i] == smalllines[k].split()[0] and float(time1[i]) > 60. 
+                                for i, _ in enumerate(name) for k in range(j - 3, j + 1)):
+                            goodin.write(smalllines[j])
+                    goodin.close()
+                    smallin.close()
+                if writeelem:
+                    elemin = open(whichdir + '/Out/element.in', 'a')
+                    for n in name:
+                        elemin.write(" " + n)
+                    elemin.close()
+
 
     @staticmethod
     def MakeMoon(whichdir, whichtime):
@@ -205,11 +270,6 @@ class MercModule:
         print('MakeMoon ' + whichdir + '/In/big.in  ' + whichtime)
 
         # constants/variables
-        G = 6.674e-8  # cm^3/g/s^2
-        mSun = 1.99e33  # g
-        AU = 1.496e13  # cm/AU
-        day = 24. * 3600.  # s/day
-
         big = ['Mercury', 'Venus', 'Earth', 'Mars', 'Jupiter', 'Moon', 'Saturn', 'Uranus', 'Neptune']
         bigxv = [''] * len(big)
 
@@ -308,7 +368,12 @@ class MercModule:
         timestepfile.close()
 
     @staticmethod
-    def MakeBigChoose(whichdir, whichtime):
+    def MakeBigChoose(
+        whichdir, 
+        whichtime,
+        big = ['Mercury', 'Venus', 'Earth', 'Mars', 'Jupiter', 'Io', 'Europa', 'Ganymede', 'Callisto',
+               'Saturn', 'Enceladu', 'Rhea', 'Titan', 'Iapetus', 'Uranus', 'Neptune']
+):
         """
         Select a timestep for the big objects and make a new big.in
         """
@@ -318,14 +383,10 @@ class MercModule:
 
         here = os.getcwd()
 
-        print('BakeBigChoose ' + whichdir + '/In/big.in  ' + whichtime)
+        print('MakeBigChoose ' + whichdir + '/In/big.in  ' + whichtime)
+        print(f"    {len(big)} big objects: {big}")
 
         # constants/variables
-        AU = 1.496e13  # cm/AU
-        day = 24. * 3600.  # s/day
-
-        big = ['Mercury', 'Venus', 'Earth', 'Mars', 'Jupiter', 'Io', 'Europa', 'Ganymede', 'Callisto',
-               'Saturn', 'Enceladu', 'Rhea', 'Titan', 'Iapetus', 'Uranus', 'Neptune']
         bigxv = [''] * len(big)
 
         # Use chosen timestep
@@ -373,7 +434,13 @@ class MercModule:
         timestepfile.close()
 
     @staticmethod
-    def MakeBigRand(whichdir, whichtime):
+    def MakeBigRand(
+            whichdir, 
+            whichtime,
+            big=['Mercury','Venus','Earth','Mars','Jupiter','Io','Europa','Ganymede','Callisto',
+             'Saturn','Enceladu','Rhea','Titan','Iapetus','Uranus','Neptune'],
+            seed=None,
+        ):
         """
         Pick a random timestep for the big objects and make a new big.in
         """
@@ -385,18 +452,17 @@ class MercModule:
         print('MakeBigRand '+whichdir+'/In/big.in  '+whichtime)
 
         #constants/variables
-        AU = 1.496e13					#cm/AU
-        day = 24.*3600.					#s/day
-
         #	big=['Mercury','Venus','Earth','Mars','Jupiter',
         #	'Io','Europa','Ganymede','Callisto','Saturn','Uranus','Neptune']
-        big = ['Mercury','Venus','Earth','Mars', 		'Jupiter','Io','Europa','Ganymede','Callisto',
-             'Saturn','Enceladu','Rhea','Titan','Iapetus','Uranus','Neptune']
         bigxv = [''] * len(big)
 
-        ### Pick a random timestep and get all big vectors at that point
+        ### Pick a timestep and get all big vectors at that point
         AEILen=MercModule.FileLength(here+'/'+whichdir+'/In/InitElemFiles/Jupiter.aei')-5
-        timestep=5+int(AEILen*random())
+        if seed:
+            timestep = 5 + seed
+            assert seed <= AEILen - 5, f"Seed value '{seed}' exceeds maximum allowed value {AEILen-5}"
+        else:
+            timestep=5+int(AEILen*random())
 
         # Find the correct timestep for each big thing
         for i in range(len(big)):
@@ -454,8 +520,6 @@ class MercModule:
         print('MakeSmall '+whichdir+'/In/small.in  '+whichtime+'  '+str(n))
 
         ### Constants/variables
-        AU = 1.496e13					#cm/AU
-        day = 24.*3600.					#s/day
         maxaspread=da/AU				#in AU
         maxvspread=dv*day/AU			#in AU/day
 
@@ -537,10 +601,6 @@ class MercModule:
         here=os.getcwd()
         print('Good2Small '+whichdir+'/good.in  '+whichtime)
 
-        #constants/variables
-        AU = 1.496e13					#cm/AU
-        day = 24.*3600.					#s/day
-
         ### Read in objects from good.in file
         #	goodin=open(whichdir+'/good.in','r')
         #	GoodLen=MercModule.FileLength(whichdir+'/good.in')
@@ -595,3 +655,123 @@ class MercModule:
         ### Write data
         MercModule.WriteObjInFile(here,whichdir,name,'small',
                                   SmallHeader,SmallFirstLines,smallxv,smalls)
+
+
+    @staticmethod
+    def MakeSmallEjecta(
+        whichdir,
+        whichtime,
+        n=1500,
+        whichpl="Earth",
+        fmin = 3.,
+        fmax = 8.6978026,
+    ):
+        """ Construct and save a small.in file with n objects ejected from around the specified planet"""
+        here=os.getcwd()
+        print('MakeSmallEjecta ' + whichdir + '/small.in  ' + whichtime)
+
+        ### Get physical parameters for the central planet
+        ### Look up fron big.in (need to generate that first!)
+        big_fname = here + '/' + whichdir + '/In/big.in'
+        pl_info = []
+        with open(big_fname, "r") as file:
+            for line in file:
+                if whichpl.lower() in line.lower():
+                    pl_info.append(line)
+                    for i in range(4):
+                        pl_info.append(file.readline())
+                    break
+
+        ### Get the mass and density from the first line of the planet's input
+        planet_first_line = [x for x in pl_info[0].split('  ')]
+        Mplanet = float([x.strip() for x in planet_first_line if ("m=" in x)][0].replace("m=", "")) * mSun
+        Dplanet = float([x.strip() for x in planet_first_line if ("d=" in x)][0].replace("d=", ""))
+        ### Compute the radius using volume of a sphere
+        Rplanet = ((3/(4*pi))*(Mplanet/Dplanet))**(1/3)
+
+        ### Get position and velocity vectors from the next lines
+        planetpos = [float(x) for x in pl_info[1].split()]
+        planetvel = [float(x) for x in pl_info[2].split()]
+
+        ### system parameters
+        Mtot = 1.0e-8*Mplanet/mSun  # standard mass lost in collision
+        m = Mtot/n  # mass per meteoroid
+
+        Rhill=1.*(Mplanet/mSun)**(1./3.)  # in AU
+        vesc=sqrt(2*G*Mplanet/(1.1*Rhill*AU + Rplanet))*day/AU  # in AU/day
+
+        ### Assign random values for theta and phi
+        theta = numpy.random.rand(n) * 360.
+        phi = numpy.random.rand(n) * 180.
+
+        ### Calculate position vectors based on these angles
+        x = 1.1 * Rhill * numpy.cos(theta) * numpy.cos(phi)
+        y = 1.1 * Rhill * numpy.sin(theta) * numpy.cos(phi)
+        z = 1.1 * Rhill * numpy.sin(phi)
+        pos = [[str(x[i] + planetpos[0]),
+                str(y[i] + planetpos[1]),
+                str(z[i] + planetpos[2])] for i in range(n)]
+
+        ### Fraction of escape velocity for each ejected rock, randomized within specified range
+        frac = fmin + random()*(fmax - fmin)
+        ### Calculate velocity vectors
+        u = frac * vesc * numpy.cos(theta) * numpy.cos(phi)
+        v = frac * vesc * numpy.sin(theta) * numpy.cos(phi)
+        w = frac * vesc * numpy.sin(phi)
+        vel = [[str(u[i] + planetvel[0]),
+                str(v[i] + planetvel[1]),
+                str(w[i] + planetvel[2])] for i in range(n)]
+
+        ### Name the objects numerically
+        n_digits = len(str(n-1))
+        name = [('M{:0>'+str(n_digits)+'}').format(str(i)) for i in range(n)]
+
+        ### Assemble position and velocity vectors into needed shape
+        small_xv = [pos[i] + vel[i] for i in range(n)]
+        ### no spin
+        small_s = ["  0.0  0.0  0.0\n"] * n
+
+        ### Format data as the first line of each big.in object entry
+        SmallFirstLines = [f'{name[i]}  m={m}  r=0.001 d=2.0\n'
+                           for i in range(len(name))]
+
+        ### Read generic big.in file header
+        SmallHeader = MercModule.FILE_CONTENTS_SMALL_HEADER
+
+        ### Write data
+        MercModule.WriteObjInFile(here, whichdir, name, 'small',
+                                  SmallHeader, SmallFirstLines, small_xv, small_s) 
+
+
+    @staticmethod
+    def PlotAllObjects(
+        sim_out_dir,
+        plot_file="coords.png",
+    ):
+        sb.set_style("darkgrid")
+        pal = sb.color_palette()
+        # sim_out_dir = "../ScalingTestSim1/Out/AeiOutFiles/"
+        ### Read in coordinates from .aei files
+        aei_files = [s for s in os.listdir(sim_out_dir) if s.endswith(".aei")]
+        obj_list = [s.split(".")[0] for s in aei_files]
+        ejecta_re = re.compile(r'^M\d+$')
+        ejecta_objs = sorted([s for s in obj_list if bool(ejecta_re.match(s))])
+        planet_objs = sorted([s for s in obj_list if s not in ejecta_objs])
+        print(f"{len(planet_objs)} planets found: {planet_objs}")
+        print(f"{len(ejecta_objs)} ejecta found: {ejecta_objs}")
+
+        coords = {}
+        for i, obj_file in enumerate(planet_objs + ejecta_objs):
+            obj = obj_file.split(".")[0]
+            header = list(pd.read_csv(sim_out_dir + obj + ".aei", header=1, sep=r'\s+', skiprows=1, nrows=1).columns)
+            header = header[0:1] + header[2:]
+            coords[obj] = pd.read_csv(sim_out_dir + obj + ".aei", sep=r'\s+', names=header, skiprows=4)
+
+        f1, ax1 = plt.subplots(1, figsize=[8, 8])
+        for i, obj in enumerate(ejecta_objs):
+            ax1.plot(coords[obj]["x"], coords[obj]["y"], c="gray")
+        for i, obj in enumerate(["Mercury", "Venus", "Earth", "Mars", "Jupiter"]):
+            ax1.plot(coords[obj]["x"], coords[obj]["y"], c=pal[i], label=obj)
+        ax1.plot([0], [0], c="yellow", marker="o", ms=10, zorder=3)
+        plt.tight_layout()
+        f1.savefig(sim_out_dir + plot_file)
