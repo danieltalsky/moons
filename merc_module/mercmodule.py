@@ -96,7 +96,7 @@ class MercModule:
         Write big.in or small.in file
         """
         with open(
-            current_dir + "/" + subdirectory + "/In/" + filename + ".in", "w"
+            f"{current_dir}/{subdirectory}/In/{filename}.in", "w"
         ) as infile:
             # Header
             infile.writelines(Header)
@@ -377,6 +377,7 @@ class MercModule:
         FakeFile = open("FakeMoons.txt", "r")
         Fake = FakeFile.readlines()
         FakeFile.close()
+        # @TODO: This is always going to be "B" right?  Should we simplify this logic?
         if whichdir[0] == "B" or whichdir[0] == "H":
             iFake = 1
         elif whichdir[0] == "D" or whichdir[0] == "L":
