@@ -24,5 +24,4 @@ RUN --mount=type=cache,target=/root/.cache/uv \
 # Ready the installation script
 WORKDIR /app/
 
-CMD ["sh", "/app/modern_moon_runner.sh"]
-# CMD ["sh", "/app/jupiter_collision_multi_core_runner.sh"]
+CMD ["sh", "/app/jupiter_collision_multi_core_runner.sh"]
