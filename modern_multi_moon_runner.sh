@@ -62,14 +62,13 @@ for j in $(seq 1 $NUMBER_OF_CHILD_PROCESSES); do
     echo "Kicking off $CHILD_RUN_DIR in the background"
     cd $CHILD_RUN_DIR/Out
     (./merc_$SOURCE_DIR) &
-
 done
 
 echo "All processes starting, waiting for them all to complete." 
 wait
 echo "All the processes ran..."
 
-### Do parallel mercury runs
+### Do parallel post-processing mercury runs
 mkdir /app/results
 OUTPUT_DIRECTORY=/app/results
 OUTPUT_SUBDIRECTORY=$(date +"%Y-%m-%d_%H-%M-%S")

@@ -5,5 +5,8 @@
 # Generated files
 runtime.txt
 
+# Generated file directory
+MercuryFileSetup
+
 # Python
 __pycache__/

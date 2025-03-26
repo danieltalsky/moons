@@ -4,6 +4,7 @@ from random import random, sample
 from math import sqrt, pi, sin, cos
 import re
 import pandas as pd
+from pathlib import Path, PurePath
 import matplotlib.pyplot as plt
 import seaborn as sb
 
@@ -73,6 +74,22 @@ class MercModule:
         ") Which bodies do you want? (List one per line or leave blank for all bodies)\n",
     ]
 
+    @staticmethod 
+    def _normalize_path(root_path: str, file_path: str) -> str:
+        """Accept two os path segments and correctly merge them.
+        
+        Accepts a relative or absolute path prefix and a filename path and makes sure we end up with a good path.
+
+        If the root path is an absolute path, then just join it to the file path and return it,
+        otherwise, prepend current working directory.
+        """
+        root = PurePath(root_path)
+        if root.is_absolute():
+            normalized_path = PurePath.joinpath(root, file_path.lstrip("/"))
+        else:
+            normalized_path = Path.cwd().joinpath(root, file_path.lstrip("/"))
+        return normalized_path
+
     @staticmethod
     def FileLength(filename: str) -> int:
         """
@@ -95,9 +112,8 @@ class MercModule:
         """
         Write big.in or small.in file
         """
-        with open(
-            f"{current_dir}/{subdirectory}/In/{filename}.in", "w"
-        ) as infile:
+        filepath = MercModule._normalize_path(subdirectory, f"In/{filename}.in")
+        with open(filepath, "w") as infile:
             # Header
             infile.writelines(Header)
             # Data
@@ -115,8 +131,8 @@ class MercModule:
         """
         Write element.in file
         """
-        here = os.getcwd()
-        with open(f"{here}/{whichdir}/Out/element.in", "w") as infile:
+        filepath = MercModule._normalize_path(whichdir, "/Out/element.in")
+        with open(filepath, "w") as infile:
             # Header
             infile.writelines(MercModule.FILE_CONTENTS_ELEMENT)
             # Data
@@ -129,9 +145,9 @@ class MercModule:
         Read info.out, put data into name/destination/time vectors and return
         """
         assert type(whichdir) is str
-        here = os.getcwd()
-        InfoFile = open(f"{here}/{whichdir}/Out/info.out", "r")
-        InfoLen = MercModule.FileLength(f"{here}/{whichdir}/Out/info.out")
+        filepath = MercModule._normalize_path(whichdir, "/Out/info.out")
+        InfoFile = open(filepath, "r")
+        InfoLen = MercModule.FileLength(filepath)
         skip = []
         flen = 7
         header = True
@@ -233,14 +249,15 @@ class MercModule:
                 InfoSum[k] = dest1.count(destname[k])
 
         # Get which timestep was used, and store in last column of InfoSum
-        here = os.getcwd()
-        timestepfile = open(f"{here}/{whichdir}/timestep.txt", "r")
+        timestep_filepath = MercModule._normalize_path(whichdir, "/timestep.txt")
+        timestepfile = open(timestep_filepath, "r")
         timestep = int(timestepfile.readline())
         timestepfile.close()
 
         # Get total number of objects in simulation
         NUMBER_OF_LINES_IN_OBJECT_GROUPS = 4
-        SmallInFileLength = MercModule.FileLength(whichdir + "/In/small.in")
+        small_filepath = MercModule._normalize_path(whichdir, "/In/small.in")
+        SmallInFileLength = MercModule.FileLength(small_filepath)
         total_objects_in_file = (
             SmallInFileLength - len(MercModule.FILE_CONTENTS_SMALL_HEADER)
         ) / NUMBER_OF_LINES_IN_OBJECT_GROUPS
@@ -248,8 +265,9 @@ class MercModule:
         assert total_objects_in_file == int(NTot)
 
         # Write summed impacts to file
-        InfoSumFile = open(f"{here}/{whichdir}/infosum.out", "a")
-        if os.path.getsize(f"{here}/{whichdir}/infosum.out") == 0:
+        infosum_filepath = MercModule._normalize_path(whichdir, "infosum.out")
+        InfoSumFile = open(infosum_filepath, "a")
+        if os.path.getsize(infosum_filepath) == 0:
             InfoSumFile.write("  Su  Me  Ve  Ea  Ma  Ju  Mn  Sa  Ej  Tot Step\n")
         InfoSumFile.write(
             " {0:3d} {1:3d} {2:3d} {3:3d} {4:3d} {5:3d} {6:3d} {7:3d} {8:3d} {9:4d} {10:4d}\n".format(
@@ -300,9 +318,11 @@ class MercModule:
             if len(name1) > 0:
                 name = numpy.array(name1)[ind]
                 if writegood:
-                    goodin = open(f"{here}/{whichdir}/good.in", "a")
-                    smallin = open(f"{here}/{whichdir}/In/small.in", "r")
-                    SmallLen = MercModule.FileLength(whichdir + "/In/small.in")
+                    goodin_filepath = MercModule._normalize_path(whichdir, "good.in")
+                    goodin = open(goodin_filepath, "a")
+                    smallin_filepath = MercModule._normalize_path(whichdir, "/In/small.in")
+                    smallin = open(smallin_filepath, "r")
+                    SmallLen = MercModule.FileLength(smallin_filepath)
                     smalllines = ["" for i in range(SmallLen)]
                     for j in range(5):
                         smalllines[j] = smallin.readline()
@@ -318,10 +338,15 @@ class MercModule:
                     goodin.close()
                     smallin.close()
                 if writeelem:
-                    elemin = open(f"{here}/{whichdir}/Out/element.in", "a")
+                    elemin_filepath = MercModule._normalize_path(whichdir, "Out/element.in")
+                    elemin = open(elemin_filepath, "a")
                     for n in name:
                         elemin.write(" " + n)
                     elemin.close()
+                    # Write a file indicating a collision was detected
+                    collision_filepath = MercModule._normalize_path(whichdir, "/Out/collision_detected")
+                    with open(collision_filepath, "a"):
+                        pass
 
     @staticmethod
     def MakeMoon(whichdir, whichtime):
@@ -356,8 +381,7 @@ class MercModule:
         # Find the correct timestep for the planets
         # 0-8 without 5
         for i in [0, 1, 2, 3, 4, 6, 7, 8]:
-            filename = f"{here}/{whichdir}/In/InitElemFiles/{big[i]}.aei"
-
+            filename = MercModule._normalize_path(whichdir, f"/In/InitElemFiles/{big[i]}.aei")
             # Attempt to open the file; if it fails, move on
             try:
                 with open(filename, "r") as File:
@@ -372,9 +396,8 @@ class MercModule:
         # B or D => smaller mass, H or L => larger (j)
         # 1 => smaller axis, 2 => larger axis
         # B or H  => small density, D or L => large density
-
-        # @TODO: Needs to be made an absolute path?
-        FakeFile = open("FakeMoons.txt", "r")
+        fake_filepath = MercModule._normalize_path("", "FakeMoons.txt")
+        FakeFile = open(fake_filepath, "r")
         Fake = FakeFile.readlines()
         FakeFile.close()
         # @TODO: This is always going to be "B" right?  Should we simplify this logic?
@@ -446,7 +469,8 @@ class MercModule:
         )
 
         # Record which timestep was used
-        timestepfile = open(f"{here}/{whichdir}/timestep.txt", "w")
+        timestep_path = MercModule._normalize_path(whichdir, "/timestep.txt")
+        timestepfile = open(timestep_path, "w")
         timestepfile.write(repr(timestep))
         timestepfile.close()
 
@@ -493,8 +517,8 @@ class MercModule:
 
         # Find the correct timestep for each big thing
         for i in range(len(big)):
-            filename = f"{here}/{whichdir}/In/InitElemFiles/" + big[i] + ".aei"
-            File = open(filename, "r")
+            filepath = MercModule._normalize_path(whichdir, "/In/InitElemFiles/" + big[i] + ".aei")
+            File = open(filepath, "r")
             for j in range(timestep):
                 thisline = File.readline().split()
             bigxv[i] = thisline[6:]
@@ -531,7 +555,8 @@ class MercModule:
         )
 
         # Record timestep used
-        timestepfile = open(f"{here}/{whichdir}/timestep.txt", "w")
+        timestep_filepath = MercModule._normalize_path(whichdir, "/timestep.txt")
+        timestepfile = open(timestep_filepath, "w")
         timestepfile.write(repr(timestep))
         timestepfile.close()
 
@@ -575,8 +600,9 @@ class MercModule:
         bigxv = [""] * len(big)
 
         ### Pick a timestep and get all big vectors at that point
+        jupiter_filepath = MercModule._normalize_path(whichdir, "/In/InitElemFiles/Jupiter.aei")
         AEILen = (
-            MercModule.FileLength(f"{here}/{whichdir}/In/InitElemFiles/Jupiter.aei") - 5
+            MercModule.FileLength(jupiter_filepath) - 5
         )
         if seed:
             timestep = 5 + seed
@@ -588,8 +614,8 @@ class MercModule:
 
         # Find the correct timestep for each big thing
         for i in range(len(big)):
-            filename = f"{here}/{whichdir}/In/InitElemFiles/{big[i]}.aei"
-            File = open(filename, "r")
+            filepath = MercModule._normalize_path(whichdir, f"/In/InitElemFiles/{big[i]}.aei")
+            File = open(filepath, "r")
             for j in range(timestep):
                 thisline = File.readline().split()
             bigxv[i] = thisline[6:]
@@ -628,7 +654,8 @@ class MercModule:
         )
 
         ### Record timestep used
-        timestepfile = open(f"{here}/{whichdir}/timestep.txt", "w")
+        timestep_filepath = MercModule._normalize_path(whichdir, "/timestep.txt")
+        timestepfile = open(timestep_filepath, "w")
         timestepfile.write(repr(timestep))
         timestepfile.close()
 
@@ -655,9 +682,9 @@ class MercModule:
         for j in range(len(small)):
             ### Pick a random timestep
             if whichpl == "J":
-                filename = f"{here}/{whichdir}/In/InitElemFiles/Jupiter12Yr.aei"
+                filename = MercModule._normalize_path(whichdir, "/In/InitElemFiles/Jupiter12Yr.aei")
             if whichpl == "S":
-                filename = f"{here}/{whichdir}/In/InitElemFiles/Saturn29Yr.aei"
+                filename = MercModule._normalize_path(whichdir, "/In/InitElemFiles/Saturn29Yr.aei")
             AEILen = MercModule.FileLength(filename) - 5
             timestep = 5 + int(AEILen * random())
             ### Get Jupiter/Saturn's info at this point
@@ -807,14 +834,15 @@ class MercModule:
         fmax=8.6978026,
     ):
         """Construct and save a small.in file with n objects ejected from around the specified planet"""
-        here = os.getcwd()
-        print("MakeSmallEjecta " + whichdir + "/small.in  " + whichtime)
+
+        big_filepath = MercModule._normalize_path(whichdir, "/In/big.in")
+        print("MakeSmallEjecta " + str(MercModule._normalize_path(whichdir, "/In/small.in")) + whichtime)
 
         ### Get physical parameters for the central planet
         ### Look up fron big.in (need to generate that first!)
-        big_fname = f"{here}/{whichdir}/In/big.in"
+
         pl_info = []
-        with open(big_fname, "r") as file:
+        with open(big_filepath, "r") as file:
             for line in file:
                 if whichpl.lower() in line.lower():
                     pl_info.append(line)
@@ -901,6 +929,7 @@ class MercModule:
         SmallHeader = MercModule.FILE_CONTENTS_SMALL_HEADER
 
         ### Write data
+        here = Path.cwd()
         MercModule.WriteObjInFile(
             here,
             whichdir,

@@ -20,8 +20,8 @@ machine=$(hostname -s)
 ###############################################################################
 ### Check if directory exists and if not, create it
 if [ ! -d "$RUN_DIRECTORY" ]; then
-  echo "$RUN_DIRECTORY does not exist. Copying BlankDir to $RUN_DIRECTORY"
-  cp -rp BlankDir $RUN_DIRECTORY
+  echo "$RUN_DIRECTORY does not exist. Copying MercurySourceFilesTemplate to $RUN_DIRECTORY"
+  cp -rp MercurySourceFilesTemplate $RUN_DIRECTORY
 fi
 
 ### Write files.in
